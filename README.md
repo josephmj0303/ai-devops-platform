@@ -5,3 +5,5 @@ A production-grade AI-Powered DevOps Platform that demonstrates modern DevOps, P
 ## Documentation
 
 - [Enterprise Platform Design](docs/enterprise-platform-design.md)
+
+- [Enterprise Repository Structure](docs/repository-structure.md)
