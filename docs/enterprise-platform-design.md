@@ -165,88 +165,452 @@ The platform demonstrates a realistic senior-level DevOps portfolio by combining
 - Redis caching and background job coordination.
 - Prometheus metrics, Grafana dashboards, Loki logs, and OpenTelemetry traces.
 
-## 5. Architecture
+## 5. Complete System Architecture
+
+### Architecture Principles
+
+- **Cloud-native by default:** all runtime components are packaged as containers and deployed to Kubernetes with stateless API and worker replicas.
+- **Asynchronous AI execution:** long-running agent analysis is handled by Redis-backed queues and worker pools rather than blocking API request threads.
+- **Secure multi-user operations:** JWT authentication, role-based authorization, tenant-aware records, audit logs, secret redaction, and administrative policy controls protect platform data.
+- **Observable operations:** every request, job, agent execution, database interaction, and provider call emits metrics, logs, and traces.
+- **GitOps-controlled delivery:** desired runtime state is declared in Git, validated in CI/CD, reconciled by ArgoCD, and backed by Terraform-provisioned infrastructure.
+- **Provider-portable AI layer:** agent orchestration depends on an AI provider abstraction so models, vendors, prompts, and policies can evolve independently.
 
 ### High-level Architecture
 
-The platform follows a modular cloud-native architecture with a browser-based frontend, REST API backend, asynchronous agent workers, PostgreSQL, Redis, and an observability stack deployed on Kubernetes.
+The system is composed of a browser client, frontend application, REST API, agent orchestration layer, worker pool, PostgreSQL, Redis, object storage for uploaded artifacts, external AI provider integration, observability services, GitHub Actions, Terraform, and ArgoCD. The API remains the control plane for user-facing operations, while worker replicas perform compute-heavy AI analysis asynchronously.
 
-```text
-User Browser
-  -> Web UI
-  -> REST API Gateway / Backend
-  -> PostgreSQL for durable data
-  -> Redis for cache, queues, rate limits, and ephemeral orchestration state
-  -> Agent Worker Pool
-       -> Kubernetes Troubleshooting Agent
-       -> Docker Optimization Agent
-       -> Terraform Review Agent
-       -> GitHub Actions Review Agent
-       -> Linux Troubleshooting Agent
-  -> Observability Pipeline
-       -> Prometheus metrics
-       -> OpenTelemetry traces
-       -> Loki logs
-       -> Grafana dashboards
+```mermaid
+flowchart TB
+    user[Users: DevOps, SRE, Platform Engineers, Admins]
+    browser[Browser]
+    ingress[HTTPS Ingress / Load Balancer]
+    web[Web UI]
+    api[REST API Service]
+    auth[Auth and RBAC Module]
+    orchestrator[Agent Orchestrator]
+    workers[Agent Worker Pool]
+    ai[External AI Provider]
+    pg[(PostgreSQL)]
+    redis[(Redis Queue / Cache)]
+    objects[(Artifact Object Storage)]
+    prom[Prometheus]
+    otel[OpenTelemetry Collector]
+    loki[Loki]
+    grafana[Grafana]
+    github[GitHub Repository]
+    gha[GitHub Actions]
+    registry[Container Registry]
+    terraform[Terraform]
+    argocd[ArgoCD]
+    k8s[Kubernetes Runtime]
+
+    user --> browser --> ingress
+    ingress --> web
+    ingress --> api
+    web --> api
+    api --> auth
+    api --> orchestrator
+    api --> pg
+    api --> redis
+    api --> objects
+    orchestrator --> redis
+    redis --> workers
+    workers --> ai
+    workers --> pg
+    workers --> objects
+    api --> prom
+    workers --> prom
+    api --> otel
+    workers --> otel
+    api --> loki
+    workers --> loki
+    prom --> grafana
+    otel --> grafana
+    loki --> grafana
+    github --> gha --> registry
+    github --> terraform
+    github --> argocd --> k8s
+    registry --> k8s
+    terraform --> k8s
 ```
 
-### Application Components
+### Component Diagram
 
-#### Web UI
+```mermaid
+flowchart LR
+    subgraph Client
+      UI[Web Dashboard]
+    end
 
-- Provides a responsive interface for login, dashboard, agent selection, task submission, artifact upload, session history, and result viewing.
-- Displays structured recommendations, severity badges, remediation steps, and review outcomes.
-- Communicates with the backend through REST APIs.
+    subgraph Kubernetes Cluster
+      subgraph Edge
+        Ingress[Ingress Controller]
+      end
 
-#### REST API Service
+      subgraph Application
+        Frontend[Frontend Service]
+        API[REST API Pods]
+        Auth[Authentication and RBAC]
+        Sessions[Session and Review Service]
+        Artifacts[Artifact Service]
+        Orchestrator[Agent Orchestrator]
+        Workers[Worker Deployment]
+      end
 
-- Owns authentication, authorization, user management, sessions, artifacts, reviews, and agent task submission.
-- Validates inputs before creating agent jobs.
-- Emits metrics, traces, and structured logs.
-- Stores durable state in PostgreSQL.
-- Uses Redis for rate limiting, caching, and job coordination.
+      subgraph Agents
+        K8sAgent[Kubernetes Troubleshooting Agent]
+        DockerAgent[Docker Optimization Agent]
+        TfAgent[Terraform Review Agent]
+        GhAgent[GitHub Actions Review Agent]
+        LinuxAgent[Linux Troubleshooting Agent]
+      end
 
-#### Agent Orchestrator
+      subgraph Data
+        Postgres[(PostgreSQL)]
+        Redis[(Redis)]
+        Blob[(Artifact Storage)]
+      end
 
-- Selects the correct agent based on the requested task type.
-- Builds agent context from user input, uploaded artifacts, templates, and platform policies.
-- Applies guardrails such as secret redaction, maximum context size, safe-output formatting, and structured response validation.
-- Dispatches background work to agent workers.
+      subgraph Observability
+        Metrics[Prometheus Metrics]
+        Logs[Loki Logs]
+        Traces[OpenTelemetry Traces]
+        Dashboards[Grafana Dashboards]
+      end
+    end
 
-#### Agent Worker Pool
+    Provider[AI Provider API]
 
-- Processes AI jobs asynchronously.
-- Uses task-specific agent definitions and policy prompts.
-- Stores final structured outputs in PostgreSQL.
-- Updates job status and progress through Redis or persistent session status records.
+    UI --> Ingress --> Frontend --> API
+    API --> Auth
+    API --> Sessions
+    API --> Artifacts
+    API --> Orchestrator
+    Auth --> Postgres
+    Sessions --> Postgres
+    Artifacts --> Blob
+    Artifacts --> Postgres
+    Orchestrator --> Redis
+    Redis --> Workers
+    Workers --> K8sAgent
+    Workers --> DockerAgent
+    Workers --> TfAgent
+    Workers --> GhAgent
+    Workers --> LinuxAgent
+    Workers --> Provider
+    Workers --> Postgres
+    API --> Metrics
+    Workers --> Metrics
+    API --> Logs
+    Workers --> Logs
+    API --> Traces
+    Workers --> Traces
+    Metrics --> Dashboards
+    Logs --> Dashboards
+    Traces --> Dashboards
+```
 
-#### PostgreSQL
+### Service Interactions
 
-- Stores users, roles, teams, agent definitions, sessions, artifacts, review findings, audit logs, and feedback.
-- Acts as the system of record for operational review history.
+| Source | Target | Interaction | Purpose |
+| --- | --- | --- | --- |
+| Web UI | REST API | HTTPS REST calls | Authentication, session creation, artifact upload, result retrieval, admin operations. |
+| REST API | PostgreSQL | SQL through migration-managed schema | Durable storage for users, roles, sessions, findings, feedback, jobs, and audit events. |
+| REST API | Redis | Cache, rate-limit, queue, token deny-list operations | Fast ephemeral state, request throttling, worker dispatch, and refresh-token/session coordination. |
+| REST API | Artifact storage | Signed upload/download or server-side object writes | Persist uploaded manifests, logs, plans, Dockerfiles, workflows, and derived metadata. |
+| REST API | Agent Orchestrator | Internal service/module call | Validate the requested agent, build context, apply guardrails, and enqueue work. |
+| Agent Workers | Redis | Queue consumption and progress updates | Process background jobs, claim locks, retry failures, and publish status. |
+| Agent Workers | AI Provider | Provider SDK/API calls | Run task-specific analysis through provider-agnostic prompts and structured schemas. |
+| Agent Workers | PostgreSQL | SQL writes | Persist messages, findings, job state, result summaries, confidence levels, and feedback metadata. |
+| API and Workers | Observability Stack | Metrics, logs, and traces | Support dashboards, alerting, latency analysis, auditability, and incident response. |
+| GitHub Actions | Container Registry | Image push | Publish versioned frontend, API, and worker images after validation. |
+| ArgoCD | Kubernetes API | Reconciliation | Apply Git-tracked Kubernetes manifests and correct configuration drift. |
 
-#### Redis
+### Request Flow
 
-- Stores rate-limit counters, job queue data, short-lived locks, token deny lists, and cached session metadata.
-- Supports asynchronous worker coordination.
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as Web UI
+    participant API as REST API
+    participant Auth as Auth/RBAC
+    participant DB as PostgreSQL
+    participant Redis as Redis
+    participant Worker as Agent Worker
+    participant AI as AI Provider
 
-#### Observability Stack
+    User->>UI: Submit agent request and artifacts
+    UI->>API: POST /api/v1/agent-sessions with JWT
+    API->>Auth: Validate token, role, team access
+    Auth->>DB: Load user, roles, policy scope
+    DB-->>Auth: Authorization context
+    Auth-->>API: Authorized
+    API->>DB: Create agent_session, messages, artifact metadata, audit_log
+    API->>Redis: Enqueue agent job and initialize progress
+    API-->>UI: 202 Accepted with session/job id
+    Redis-->>Worker: Deliver queued job
+    Worker->>DB: Load session, artifacts, agent config, prior messages
+    Worker->>Worker: Redact secrets, assemble context, validate schema
+    Worker->>AI: Submit task-specific prompt/context
+    AI-->>Worker: Structured response
+    Worker->>DB: Persist findings, messages, result summary, job status
+    Worker->>Redis: Publish progress/completion notification
+    UI->>API: Poll or subscribe for session status
+    API->>DB: Read session and findings
+    API-->>UI: Final structured recommendations
+```
 
-- Prometheus scrapes application and infrastructure metrics.
-- Grafana visualizes service-level objectives and operational dashboards.
-- Loki collects structured logs from application and Kubernetes workloads.
-- OpenTelemetry captures distributed traces across frontend, API, workers, database, Redis, and external AI provider calls.
+### AI Agent Flow
+
+```mermaid
+flowchart TD
+    A[Receive agent job] --> B[Load session, user, team, artifacts, agent policy]
+    B --> C[Classify task and select specialized agent]
+    C --> D[Normalize input and extract artifact metadata]
+    D --> E[Redact secrets and sensitive infrastructure data]
+    E --> F[Apply context budget and attach runbook snippets if enabled]
+    F --> G[Build prompt with structured output schema]
+    G --> H[Call AI provider abstraction]
+    H --> I{Response valid?}
+    I -- No --> J[Retry with repair prompt or mark recoverable failure]
+    J --> H
+    I -- Yes --> K[Validate severity, evidence, confidence, recommendations]
+    K --> L[Persist messages and findings]
+    L --> M[Emit metrics, logs, traces, audit event]
+    M --> N[Notify UI through status polling or event stream]
+```
+
+Specialized agents share the same orchestration pipeline but use different policy prompts, input expectations, finding categories, and output validation rules:
+
+- **Kubernetes Troubleshooter:** analyzes events, manifests, logs, probe failures, scheduling issues, RBAC, networking, and resource pressure.
+- **Docker Optimizer:** reviews Dockerfiles for image size, caching, non-root execution, dependency hygiene, and runtime hardening.
+- **Terraform Reviewer:** evaluates plans and configuration for unsafe changes, state practices, tagging, IAM risks, drift, and maintainability.
+- **GitHub Actions Reviewer:** reviews workflow permissions, secrets, cache usage, concurrency, artifacts, deployment gates, and environment protection.
+- **Linux Troubleshooter:** diagnoses systemd, DNS, disk, CPU, memory, process, permissions, networking, and kernel-level operational issues.
+
+### Authentication Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as Web UI
+    participant API as REST API
+    participant DB as PostgreSQL
+    participant Redis as Redis
+    participant Audit as Audit Log
+
+    User->>UI: Enter email and password
+    UI->>API: POST /api/v1/auth/login
+    API->>DB: Fetch user, password hash, status, roles
+    DB-->>API: User auth record
+    API->>API: Verify password hash and account state
+    API->>DB: Store hashed refresh token with expiry
+    API->>Redis: Initialize rate-limit and optional token metadata
+    API->>Audit: Record login success/failure
+    API-->>UI: Access token and refresh token
+    UI->>API: Subsequent requests with Bearer JWT
+    API->>API: Validate signature, expiry, issuer, audience
+    API->>DB: Load role/team permissions when required
+    API-->>UI: Authorized response
+```
+
+Refresh-token rotation is performed through `POST /api/v1/auth/refresh`: the API validates the presented refresh token hash, revokes or rotates it in PostgreSQL, optionally checks Redis deny-list state, emits an audit event, and returns a new short-lived access token. Logout revokes the active refresh token and can place still-valid access-token identifiers on a short-lived deny list when immediate revocation is required.
+
+### Database Interactions
+
+```mermaid
+erDiagram
+    users ||--o{ user_roles : has
+    roles ||--o{ user_roles : grants
+    users ||--o{ team_members : belongs_to
+    teams ||--o{ team_members : contains
+    users ||--o{ agent_sessions : creates
+    teams ||--o{ agent_sessions : owns
+    agents ||--o{ agent_sessions : handles
+    agent_sessions ||--o{ agent_messages : records
+    agent_sessions ||--o{ agent_findings : produces
+    agent_sessions ||--o{ artifacts : includes
+    artifacts ||--o{ artifact_metadata : describes
+    users ||--o{ refresh_tokens : owns
+    users ||--o{ audit_logs : acts
+    agent_sessions ||--o{ agent_feedback : receives
+    agent_sessions ||--o{ job_runs : executes
+
+    users {
+      uuid id
+      string email
+      string password_hash
+      string display_name
+      string status
+      timestamp last_login_at
+    }
+    agents {
+      uuid id
+      string key
+      string category
+      bool enabled
+      string configuration_version
+    }
+    agent_sessions {
+      uuid id
+      uuid user_id
+      uuid team_id
+      uuid agent_id
+      string status
+      text input_summary
+      text result_summary
+    }
+    agent_findings {
+      uuid id
+      uuid session_id
+      string severity
+      string category
+      string title
+      text evidence
+      text recommendation
+      decimal confidence
+      string status
+    }
+    job_runs {
+      uuid id
+      uuid session_id
+      string job_type
+      string status
+      int attempts
+      text error_message
+    }
+```
+
+Primary database patterns:
+
+1. **Authentication:** `users`, `roles`, `user_roles`, `teams`, `team_members`, and `refresh_tokens` support identity, authorization, and token lifecycle management.
+2. **Agent execution:** `agents`, `agent_sessions`, `agent_messages`, `agent_findings`, `artifacts`, `artifact_metadata`, and `job_runs` record every request, background job, artifact, prompt/response event, and final recommendation.
+3. **Governance:** `audit_logs`, `agent_feedback`, and `integration_events` support traceability, review status changes, external event processing, and quality measurement.
+4. **Performance:** database connection pooling is used by API and worker replicas; Redis handles high-churn counters, queue state, short-lived locks, and cache entries so PostgreSQL remains the durable system of record.
+
+### Monitoring Architecture
+
+```mermaid
+flowchart LR
+    subgraph Workloads
+      API[API Pods]
+      Workers[Worker Pods]
+      Web[Frontend Pods]
+      DB[(PostgreSQL Exporter)]
+      Redis[(Redis Exporter)]
+      Kube[Kubernetes Metrics]
+    end
+
+    API --> Metrics[/metrics]
+    Workers --> Metrics
+    Web --> Metrics
+    DB --> Metrics
+    Redis --> Metrics
+    Kube --> Metrics
+    Metrics --> Prom[Prometheus]
+    Prom --> Alert[Alertmanager]
+    Prom --> Grafana[Grafana]
+    Alert --> Channels[Email / Slack / Pager]
+```
+
+Recommended metrics include request volume, p50/p95/p99 latency, HTTP error rate, authentication failures, rate-limit denials, active sessions, queue depth, job retries, agent execution duration, AI provider error rate, token usage/cost estimates, database connection pool saturation, PostgreSQL query latency, Redis memory usage, and Kubernetes pod restart counts.
+
+### Logging Architecture
+
+```mermaid
+flowchart TB
+    API[API Structured JSON Logs]
+    Workers[Worker Structured JSON Logs]
+    Ingress[Ingress Logs]
+    K8s[Kubernetes Events]
+    Collector[Log Collector / Promtail or Fluent Bit]
+    Loki[Loki]
+    Grafana[Grafana Explore]
+    Audit[(PostgreSQL audit_logs)]
+
+    API --> Collector
+    Workers --> Collector
+    Ingress --> Collector
+    K8s --> Collector
+    Collector --> Loki
+    Loki --> Grafana
+    API --> Audit
+    Workers --> Audit
+```
+
+Application logs should include request IDs, trace IDs, user IDs when safe, team IDs, session IDs, job IDs, agent keys, severity, latency, status codes, retry counts, and sanitized error context. Sensitive inputs, credentials, infrastructure secrets, refresh tokens, access tokens, and raw provider payloads must be redacted before logs leave the process. Audit logs remain in PostgreSQL for compliance-oriented queries, while operational logs flow to Loki for debugging and incident response.
+
+### GitOps Workflow
+
+```mermaid
+sequenceDiagram
+    actor Engineer
+    participant Git as Git Repository
+    participant CI as GitHub Actions
+    participant Registry as Container Registry
+    participant Argo as ArgoCD
+    participant K8s as Kubernetes API
+    participant Obs as Observability Stack
+
+    Engineer->>Git: Open PR with app, infra, or manifest changes
+    Git->>CI: Trigger validation workflows
+    CI->>CI: Lint, test, scan, build images
+    CI->>Registry: Push immutable image tags
+    CI->>Git: Update or validate deployment manifests
+    Engineer->>Git: Merge approved PR
+    Argo->>Git: Watch desired state path
+    Argo->>K8s: Sync manifests or Helm/Kustomize output
+    K8s-->>Argo: Report health and sync status
+    K8s->>Obs: Emit metrics, logs, traces, events
+    Argo-->>Engineer: Show synced/healthy or degraded state
+```
+
+GitOps operating model:
+
+- Application manifests, environment overlays, ConfigMaps, resource requests, autoscaling policies, network policies, and ArgoCD Application definitions are committed to Git.
+- Secrets are referenced through Kubernetes Secrets, sealed secret workflows, or external secret operators rather than committed as plaintext.
+- ArgoCD reconciles declared state continuously and flags drift when live cluster resources diverge from Git.
+- Promotion across environments is performed by pull request, image tag update, Helm values change, or Kustomize overlay update.
+- Emergency production changes are either reverted or captured back into Git to restore Git as the source of truth.
+
+### CI/CD Workflow
+
+```mermaid
+flowchart TD
+    A[Pull Request Opened] --> B[Static Checks]
+    B --> C[Unit and Integration Tests]
+    C --> D[Dependency and Secret Scans]
+    D --> E[Container Build]
+    E --> F[Image Vulnerability Scan]
+    F --> G{Main branch or release tag?}
+    G -- No --> H[Publish PR status only]
+    G -- Yes --> I[Push immutable images]
+    I --> J[Generate SBOM and provenance]
+    J --> K[Update deployment metadata or image tag]
+    K --> L[ArgoCD detects change]
+    L --> M[Deploy to environment]
+    M --> N[Smoke tests and health checks]
+    N --> O[Monitoring and rollback decision]
+```
+
+CI/CD responsibilities:
+
+- **Pull request validation:** formatting, linting, type checks, unit tests, API contract checks, migration checks, IaC validation, policy checks, dependency review, secret scanning, and container build verification.
+- **Security gates:** vulnerability scanning, least-privilege workflow permissions, SBOM generation, image signing or provenance, and blocking thresholds for critical findings.
+- **Release packaging:** immutable image tags, version metadata, changelog or release notes, and environment-specific deployment artifact updates.
+- **Deployment verification:** ArgoCD sync health, Kubernetes readiness, smoke tests, `/healthz`, `/readyz`, `/metrics`, dashboard checks, and rollback through Git revert or manifest rollback.
 
 ### Deployment Architecture
 
 - Docker images are built for the frontend, API, and worker services.
-- Kubernetes Deployments run stateless services with horizontal scaling.
-- Kubernetes Services expose internal networking.
+- Kubernetes Deployments run stateless frontend, API, and worker pods with independent horizontal scaling.
+- Kubernetes Services provide stable service discovery for internal traffic.
 - Ingress routes external HTTPS traffic to the frontend and API.
-- ConfigMaps hold non-sensitive configuration.
-- Secrets hold credentials and tokens.
-- ArgoCD reconciles Kubernetes manifests from Git.
-- Terraform provisions cluster and dependent infrastructure.
+- ConfigMaps hold non-sensitive configuration; Secrets or external secret managers provide credentials and tokens.
+- NetworkPolicies restrict traffic between frontend, API, workers, Redis, PostgreSQL, and observability endpoints.
+- PodDisruptionBudgets, readiness probes, liveness probes, resource requests, limits, and autoscaling policies improve reliability.
+- Terraform provisions cluster dependencies, namespaces, managed PostgreSQL or database operators, Redis, container registry resources, IAM policies, DNS, TLS prerequisites, and monitoring foundations.
 
 ## 6. Technology Stack
 
