@@ -9,3 +9,5 @@ A production-grade AI-Powered DevOps Platform that demonstrates modern DevOps, P
 - [Enterprise Repository Structure](docs/repository-structure.md)
 
 - [PostgreSQL Database Schema Design](docs/postgresql-database-schema-design.md)
+
+- [REST API Design](docs/rest-api-design.md)
