@@ -11,3 +11,5 @@ A production-grade AI-Powered DevOps Platform that demonstrates modern DevOps, P
 - [PostgreSQL Database Schema Design](docs/postgresql-database-schema-design.md)
 
 - [REST API Design](docs/rest-api-design.md)
+
+- [Modern React Dashboard Wireframes](docs/react-dashboard-wireframes.md)
