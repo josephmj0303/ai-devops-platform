@@ -47,8 +47,9 @@ def on_startup() -> None:
 @app.get("/", tags=["Root"])
 async def root():
     return {
-        "application": settings.APP_NAME,
-        "version": settings.API_VERSION,
+        "application": settings.app_name,
+        "version": settings.app_version,
+	"environment": settings.app_env,
         "status": "running",
     }
 
