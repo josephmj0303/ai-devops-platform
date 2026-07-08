@@ -44,6 +44,13 @@ def on_startup() -> None:
         settings.app_env,
     )
 
+@app.get("/", tags=["Root"])
+async def root():
+    return {
+        "application": settings.APP_NAME,
+        "version": settings.API_VERSION,
+        "status": "running",
+    }
 
 @app.get("/health/live", response_model=HealthResponse, tags=["health"])
 def liveness() -> HealthResponse:
