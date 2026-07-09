@@ -1,13 +1,13 @@
 from functools import lru_cache
 
-from app.core.config.ai import AISettings
-from app.core.config.api import APISettings
-from app.core.config.app import AppSettings
-from app.core.config.cors import CORSSettings
-from app.core.config.database import DatabaseSettings
-from app.core.config.observability import ObservabilitySettings
-from app.core.config.redis import RedisSettings
-from app.core.config.security import SecuritySettings
+from app.core.settings.ai import AISettings
+from app.core.settings.api import APISettings
+from app.core.settings.app import AppSettings
+from app.core.settings.cors import CORSSettings
+from app.core.settings.database import DatabaseSettings
+from app.core.settings.observability import ObservabilitySettings
+from app.core.settings.redis import RedisSettings
+from app.core.settings.security import SecuritySettings
 
 
 class Settings:

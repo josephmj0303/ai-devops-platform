@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependencies import get_current_user, get_user_service
-from app.core.config import Settings, get_settings
+from app.core.settings import get_settings
 from app.core.security import create_access_token
 from app.models.auth import LoginRequest, TokenResponse, UserPublic
 from app.services.user_service import UserRecord, UserService

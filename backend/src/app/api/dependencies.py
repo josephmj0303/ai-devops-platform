@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.core.config import Settings, get_settings
+from app.core.settings import get_settings
 from app.core.security import decode_token
 from app.services.user_service import UserRecord, UserService
 
