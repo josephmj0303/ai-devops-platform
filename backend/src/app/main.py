@@ -9,6 +9,13 @@ from app.core.logging import configure_logging
 from app.models.health import HealthResponse, ReadinessResponse
 
 settings = get_settings()
+app = FastAPI(
+    title=settings.app.APP_NAME,
+    version=settings.app.APP_VERSION,
+    docs_url=settings.api.DOCS_URL,
+    redoc_url=settings.api.REDOC_URL,
+    openapi_url=settings.api.OPENAPI_URL,
+)
 configure_logging(settings)
 logger = logging.getLogger(__name__)
 
