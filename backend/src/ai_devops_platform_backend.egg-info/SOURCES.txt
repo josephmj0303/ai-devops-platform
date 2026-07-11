@@ -27,6 +27,13 @@ src/app/core/settings/loader.py
 src/app/core/settings/observability.py
 src/app/core/settings/redis.py
 src/app/core/settings/security.py
+src/app/middleware/__init__.py
+src/app/middleware/cors.py
+src/app/middleware/gzip.py
+src/app/middleware/registry.py
+src/app/middleware/request_context.py
+src/app/middleware/request_logging.py
+src/app/middleware/security_headers.py
 src/app/models/__init__.py
 src/app/models/auth.py
 src/app/models/health.py
