@@ -107,5 +107,26 @@ async def generic_exception_handler(
         content=response.model_dump(mode="json"),
     )
 
+# Register Function
+def register_exception_handlers(app: FastAPI):
 
+    app.add_exception_handler(
+        AppException,
+        app_exception_handler,
+    )
+
+    app.add_exception_handler(
+        HTTPException,
+        http_exception_handler,
+    )
+
+    app.add_exception_handler(
+        RequestValidationError,
+        validation_exception_handler,
+    )
+
+    app.add_exception_handler(
+        Exception,
+        generic_exception_handler,
+    )
 
