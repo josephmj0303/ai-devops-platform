@@ -83,5 +83,29 @@ async def validation_exception_handler(
         content=response.model_dump(mode="json"),
     )
 
+# Unexpected Exceptions
+async def generic_exception_handler(
+    request: Request,
+    exc: Exception,
+):
+
+    response = ErrorResponse(
+        error=ErrorDetail(
+            code="INTERNAL_SERVER_ERROR",
+            message="Unexpected server error",
+        ),
+        request_id=getattr(
+            request.state,
+            "request_id",
+            None,
+        ),
+        timestamp=datetime.utcnow(),
+    )
+
+    return JSONResponse(
+        status_code=500,
+        content=response.model_dump(mode="json"),
+    )
+
 
 
