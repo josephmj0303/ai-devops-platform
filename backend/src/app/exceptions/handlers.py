@@ -59,5 +59,29 @@ async def http_exception_handler(
         content=response.model_dump(mode="json"),
     )
 
+# Validation Handler
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError,
+):
+
+    response = ErrorResponse(
+        error=ErrorDetail(
+            code="VALIDATION_ERROR",
+            message="Request validation failed",
+        ),
+        request_id=getattr(
+            request.state,
+            "request_id",
+            None,
+        ),
+        timestamp=datetime.utcnow(),
+    )
+
+    return JSONResponse(
+        status_code=422,
+        content=response.model_dump(mode="json"),
+    )
+
 
 
