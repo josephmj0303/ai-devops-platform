@@ -35,5 +35,29 @@ async def app_exception_handler(
         content=response.model_dump(mode="json"),
     )
 
+# HTTP Exception Handler
+async def http_exception_handler(
+    request: Request,
+    exc: HTTPException,
+):
+
+    response = ErrorResponse(
+        error=ErrorDetail(
+            code="HTTP_ERROR",
+            message=str(exc.detail),
+        ),
+        request_id=getattr(
+            request.state,
+            "request_id",
+            None,
+        ),
+        timestamp=datetime.utcnow(),
+    )
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=response.model_dump(mode="json"),
+    )
+
 
 
