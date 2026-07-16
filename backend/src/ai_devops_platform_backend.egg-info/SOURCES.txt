@@ -27,6 +27,10 @@ src/app/core/settings/loader.py
 src/app/core/settings/observability.py
 src/app/core/settings/redis.py
 src/app/core/settings/security.py
+src/app/exceptions/__init__.py
+src/app/exceptions/custom.py
+src/app/exceptions/handlers.py
+src/app/exceptions/responses.py
 src/app/middleware/__init__.py
 src/app/middleware/cors.py
 src/app/middleware/gzip.py
