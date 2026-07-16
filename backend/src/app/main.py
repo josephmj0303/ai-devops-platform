@@ -46,6 +46,10 @@ app = FastAPI(
 
 register_middleware(app)
 
+from app.exceptions import register_exception_handlers
+
+register_exception_handlers(app)
+
 app.include_router(
     api_router,
     prefix=f"{settings.api.API_PREFIX}/{settings.api.API_VERSION}",
