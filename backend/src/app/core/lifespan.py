@@ -25,10 +25,20 @@ async def lifespan(app: FastAPI):
     #
     # Future initialization
     #
+
+    # Application state
+    app.state.db = None
+    app.state.redis = None
+    app.state.ai_client = None
+
     # PostgreSQL
+    # app.state.db = create_database_pool()
+
     # Redis
+    # app.state.redis = create_redis_client()
+
     # AI Client
-    #
+    # app.state.ai_client = OpenAI(...)
 
     yield
 
@@ -40,3 +50,9 @@ async def lifespan(app: FastAPI):
     #
     # Future cleanup
     #
+
+    # if app.state.db:
+    #     await app.state.db.close()
+
+    # if app.state.redis:
+    #     await app.state.redis.close()
