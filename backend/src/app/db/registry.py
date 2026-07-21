@@ -1,5 +1,5 @@
-"""
-Import all SQLAlchemy models here.
+from app.models.user import User
 
-Alembic uses these imports to discover metadata.
-"""
+__all__ = [
+    "User",
+]
