@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.settings import get_settings
-from app.db import get_db
+from app.db.session import get_db
 
 
 def get_app_settings():
