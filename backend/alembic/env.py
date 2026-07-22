@@ -25,17 +25,22 @@ if config.config_file_name is not None:
 
 settings = get_settings()
 
+# Convert async URL to sync URL for Alembic
+database_url = settings.database.DATABASE_URL.replace(
+    "+asyncpg",
+    "+psycopg",
+)
+
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database.DATABASE_URL,
+    database_url,
 )
 
 target_metadata = Base.metadata
 
-
 def run_migrations_offline() -> None:
     context.configure(
-        url=settings.database.DATABASE_URL,
+        url=database_url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
