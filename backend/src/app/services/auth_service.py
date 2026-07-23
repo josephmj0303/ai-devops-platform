@@ -1,0 +1,9 @@
+class AuthService:
+    def __init__(...):
+        ...
+
+    async def register(...):
+        ...
+
+    async def authenticate(...):
+        ...
