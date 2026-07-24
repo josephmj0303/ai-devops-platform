@@ -5,6 +5,12 @@ from jose import JWTError, jwt
 
 from app.core.settings import get_settings
 
+
+class InvalidTokenError(Exception):
+    """Raised when a JWT token is invalid or has expired."""
+    pass
+
+
 settings = get_settings()
 
 
@@ -30,7 +36,12 @@ def create_access_token(data: dict[str, Any]) -> str:
 def verify_token(token: str) -> dict[str, Any]:
     """
     Decode and validate a JWT access token.
-    Raises ValueError if the token is invalid or expired.
+
+    Returns:
+        The decoded JWT payload.
+
+    Raises:
+        InvalidTokenError: If the token is invalid or has expired.
     """
     try:
         payload = jwt.decode(
@@ -42,4 +53,4 @@ def verify_token(token: str) -> dict[str, Any]:
         return payload
 
     except JWTError as exc:
-        raise ValueError("Invalid or expired token") from exc
+        raise InvalidTokenError("Invalid or expired token") from exc
