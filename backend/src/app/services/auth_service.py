@@ -27,10 +27,10 @@ class AuthService:
 
         token = create_access_token(
             {
-                "sub": str(user.id)
+                "sub": str(user.id),
             }
         )
 
         return Token(
-            access_token=token
+            access_token=token,
         )
