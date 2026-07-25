@@ -68,7 +68,7 @@ async def validation_exception_handler(
     response = ErrorResponse(
         error=ErrorDetail(
             code="VALIDATION_ERROR",
-            message="Request validation failed",
+            message=str(exc.errors()),
         ),
         request_id=getattr(
             request.state,
