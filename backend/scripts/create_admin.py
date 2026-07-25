@@ -16,7 +16,7 @@ async def create_admin():
     async with AsyncSessionLocal() as session:
 
         result = await session.execute(
-            select(User).where(User.email == "admin@aidevops.local")
+            select(User).where(User.email == "admin@example.com")
         )
 
         existing_user = result.scalar_one_or_none()
@@ -26,7 +26,7 @@ async def create_admin():
             return
 
         admin = User(
-            email="admin@aidevops.local",
+            email="admin@example.com",
             username="admin",
             full_name="Platform Administrator",
             hashed_password=PasswordHasher.hash("Admin@123"),
