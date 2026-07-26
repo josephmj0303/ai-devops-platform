@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -20,11 +21,16 @@ router = APIRouter(
     response_model=Token,
 )
 async def login(
-    request: LoginRequest,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_db),
 ):
     repository = UserRepository(session)
     service = AuthService(repository)
+
+    request = LoginRequest(
+        email=form_data.username,
+        password=form_data.password,
+    )
 
     try:
         return await service.login(request)

@@ -10,12 +10,12 @@ class AuthService:
         self.repository = repository
 
     async def get_current_user(self, user_id: UUID):
-    	user = await self.repository.get_by_id(user_id)
+        user = await self.repository.get_by_id(user_id)
 
-	if not user:
+        if not user:
             raise ValueError("User not found")
 
-	return user
+        return user
 
     async def login(
         self,
