@@ -1,7 +1,10 @@
+from uuid import UUID
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.security.jwt import InvalidTokenError, verify_token
+
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login"
@@ -10,7 +13,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 async def get_current_user_id(
     token: str = Depends(oauth2_scheme),
-) -> int:
+) -> UUID:
 
     try:
         payload = verify_token(token)
@@ -23,7 +26,7 @@ async def get_current_user_id(
                 detail="Invalid authentication credentials",
             )
 
-        return int(user_id)
+        return UUID(user_id)
 
     except (InvalidTokenError, ValueError):
         raise HTTPException(
