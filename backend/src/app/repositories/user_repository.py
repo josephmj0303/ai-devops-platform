@@ -5,6 +5,15 @@ from app.models.user import User
 
 from .base import BaseRepository
 
+from uuid import UUID
+
+...
+
+async def get_by_id(self, user_id: UUID) -> User | None:
+    result = await self.session.execute(
+        select(User).where(User.id == user_id)
+    )
+    return result.scalar_one_or_none()
 
 class UserRepository(BaseRepository[User]):
     def __init__(self, session: AsyncSession):
