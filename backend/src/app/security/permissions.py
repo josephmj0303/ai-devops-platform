@@ -32,3 +32,16 @@ def require_roles(*roles: str) -> Callable:
         return user
 
     return checker
+
+require_admin = require_roles("admin")
+
+require_developer = require_roles(
+    "admin",
+    "developer",
+)
+
+require_authenticated = require_roles(
+    "admin",
+    "developer",
+    "viewer",
+)
