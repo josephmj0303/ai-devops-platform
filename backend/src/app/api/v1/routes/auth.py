@@ -8,7 +8,7 @@ from app.schemas.auth import LoginRequest, Token, CurrentUser
 from app.services.auth_service import AuthService
 from uuid import UUID
 from app.security.oauth2 import get_current_user_id
-
+from app.security.permissions import require_admin
 
 router = APIRouter(
     prefix="/auth",
@@ -57,3 +57,13 @@ async def me(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+
+@router.get("/admin")
+async def admin_only(
+    user=Depends(require_admin),
+):
+    return {
+        "message": "Welcome Administrator",
+        "user": user.username,
+        "role": user.role,
+    }
