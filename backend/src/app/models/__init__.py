@@ -5,9 +5,5 @@ from app.models.project import Project
 __all__ = [
     "User",
     "UserRole",
-]
-
-__all__ = [
-    "User",
     "Project",
 ]
