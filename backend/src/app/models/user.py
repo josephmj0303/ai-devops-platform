@@ -5,10 +5,19 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
 from app.mixins import TimestampMixin, UUIDMixin
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from app.models.project import Project
 
 class User(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "users"
+
+    projects: Mapped[list["Project"]] = relationship(
+        "Project",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+    )
 
     email: Mapped[str] = mapped_column(
         String(255),
