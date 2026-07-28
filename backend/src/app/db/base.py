@@ -1,5 +1,7 @@
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
+from app.models.user import User
+from app.models.project import Project
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
