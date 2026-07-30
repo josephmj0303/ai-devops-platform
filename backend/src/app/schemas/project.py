@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -35,7 +36,7 @@ class ProjectResponse(BaseModel):
     id: int
     name: str
     description: str | None
-    owner_id: str
+    owner_id: UUID
     created_at: datetime
     updated_at: datetime
 
