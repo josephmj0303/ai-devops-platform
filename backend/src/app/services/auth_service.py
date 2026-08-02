@@ -3,14 +3,17 @@ from app.schemas.auth import LoginRequest, Token
 from app.security.hashing import PasswordHasher
 from app.security.jwt import create_access_token
 from uuid import UUID
+from app.models.user import User
 
 class AuthService:
 
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    async def get_current_user(self, user_id: UUID):
-        user = await self.repository.get_by_id(user_id)
+    async def get_current_user(
+        self,
+        user_id: UUID,
+    ) -> User:
 
         if not user:
             raise ValueError("User not found")
