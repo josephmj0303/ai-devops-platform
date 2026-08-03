@@ -5,7 +5,6 @@ from .project import (
 )
 
 __all__ = [
-    ...
     "ProjectCreate",
     "ProjectUpdate",
     "ProjectResponse",
