@@ -15,7 +15,9 @@ class AuthService:
         user_id: UUID,
     ) -> User:
 
-        if not user:
+        user = await self.repository.get_by_id(user_id)
+
+        if user is None:
             raise ValueError("User not found")
 
         return user
