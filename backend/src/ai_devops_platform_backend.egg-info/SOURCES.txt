@@ -75,5 +75,10 @@ src/app/services/__init__.py
 src/app/services/auth_service.py
 src/app/services/project.py
 src/app/services/user_service.py
+src/app/services/ai/__init__.py
+src/app/services/ai/base.py
+src/app/services/ai/ollama_provider.py
+src/app/services/ai/openai_provider.py
+src/app/services/ai/provider_factory.py
 tests/test_auth.py
 tests/test_health.py
