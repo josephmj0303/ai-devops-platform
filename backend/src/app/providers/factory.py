@@ -1,14 +1,16 @@
-from .ollama_provider import OllamaProvider
-from .openai_provider import OpenAIProvider
-from app.core.config import settings
+from app.core.settings import get_settings
 
+from .ollama import OllamaProvider
+from .openai import OpenAIProvider
+
+settings = get_settings()
 
 def get_provider():
     """
     Return the configured AI provider.
     """
 
-    provider = settings.AI_PROVIDER.lower()
+    provider = settings.ai.PROVIDER.lower()
 
     if provider == "ollama":
         return OllamaProvider()
