@@ -19,13 +19,13 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e '.[dev]'
 cp .env.example .env
-uvicorn app.main:app --reload --app-dir src
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --app-dir src
 ```
 
 Default demo credentials for local-only authentication smoke tests:
 
 - Email: `admin@example.com`
-- Password: `ChangeMe123!`
+- Password: `Admin@123`
 
 Replace the in-memory user service and `JWT_SECRET_KEY` before using this service outside local development.
 
