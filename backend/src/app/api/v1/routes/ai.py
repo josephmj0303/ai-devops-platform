@@ -10,6 +10,8 @@ from app.schemas.ai import (
     KubernetesReviewResponse,
     TerraformReviewRequest,
     TerraformReviewResponse,
+    LogExplanationRequest,
+    LogExplanationResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -137,3 +139,32 @@ Terraform:
     return TerraformReviewResponse(review=response)
 
 
+@router.post(
+    "/explain/log",
+    response_model=LogExplanationResponse,
+)
+async def explain_log(
+    request: LogExplanationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = f"""
+You are a DevOps Engineer.
+
+Analyze the following application log.
+
+Provide:
+
+- likely cause
+- troubleshooting steps
+- possible fixes
+
+Logs:
+
+{request.logs}
+"""
+
+    response = await service.generate(prompt=prompt)
+
+    return LogExplanationResponse(explanation=response)
