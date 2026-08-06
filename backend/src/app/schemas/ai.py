@@ -16,3 +16,11 @@ class DockerReviewRequest(BaseModel):
 
 class DockerReviewResponse(BaseModel):
     review: str
+
+
+class KubernetesReviewRequest(BaseModel):
+    manifest: str
+
+
+class KubernetesReviewResponse(BaseModel):
+    review: str
