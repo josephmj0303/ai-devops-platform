@@ -25,7 +25,7 @@ class OllamaProvider(AIProvider):
         if system_prompt:
             payload["system"] = system_prompt
 
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=300.0) as client:
 
             response = await client.post(
                 f"{settings.ai.OLLAMA_BASE_URL}/api/generate",

@@ -6,6 +6,8 @@ from app.schemas.ai import (
     AIChatResponse,
     DockerReviewRequest,
     DockerReviewResponse,
+    KubernetesReviewRequest,
+    KubernetesReviewResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -65,3 +67,39 @@ Dockerfile:
     response = await service.generate(prompt=prompt)
 
     return DockerReviewResponse(review=response)
+
+@router.post(
+    "/review/kubernetes",
+    response_model=KubernetesReviewResponse,
+)
+async def review_kubernetes(
+    request: KubernetesReviewRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = f"""
+You are an experienced Kubernetes and DevOps Engineer.
+
+Review the following Kubernetes manifest.
+
+Focus on:
+
+- Resource requests and limits
+- Liveness probe
+- Readiness probe
+- Security context
+- Labels and selectors
+- Image version
+- Production readiness
+
+Provide practical recommendations.
+
+Manifest:
+
+{request.manifest}
+"""
+
+    response = await service.generate(prompt=prompt)
+
+    return KubernetesReviewResponse(review=response)
