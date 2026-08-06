@@ -24,3 +24,11 @@ class KubernetesReviewRequest(BaseModel):
 
 class KubernetesReviewResponse(BaseModel):
     review: str
+
+
+class TerraformReviewRequest(BaseModel):
+    terraform: str
+
+
+class TerraformReviewResponse(BaseModel):
+    review: str
