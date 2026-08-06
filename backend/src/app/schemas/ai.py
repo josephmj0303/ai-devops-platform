@@ -9,3 +9,10 @@ class AIChatRequest(BaseModel):
 class AIChatResponse(BaseModel):
     response: str
 
+
+class DockerReviewRequest(BaseModel):
+    dockerfile: str
+
+
+class DockerReviewResponse(BaseModel):
+    review: str
