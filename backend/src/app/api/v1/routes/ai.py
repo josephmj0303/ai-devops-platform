@@ -8,6 +8,8 @@ from app.schemas.ai import (
     DockerReviewResponse,
     KubernetesReviewRequest,
     KubernetesReviewResponse,
+    TerraformReviewRequest,
+    TerraformReviewResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -101,3 +103,37 @@ Manifest:
     response = await service.generate(prompt=prompt)
 
     return KubernetesReviewResponse(review=response)
+
+@router.post(
+    "/review/terraform",
+    response_model=TerraformReviewResponse,
+)
+async def review_terraform(
+    request: TerraformReviewRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = f"""
+You are a DevOps Engineer.
+
+Review this Terraform configuration.
+
+Comment on:
+
+- security
+- best practices
+- resource organization
+- naming
+- production readiness
+
+Terraform:
+
+{request.terraform}
+"""
+
+    response = await service.generate(prompt=prompt)
+
+    return TerraformReviewResponse(review=response)
+
+
