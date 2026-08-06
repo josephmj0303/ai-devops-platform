@@ -85,13 +85,11 @@ Review the following Kubernetes manifest.
 
 Focus on:
 
-- Resource requests and limits
-- Liveness probe
-- Readiness probe
-- Security context
-- Labels and selectors
-- Image version
-- Production readiness
+- image tags
+- resource limits
+- probes
+- security
+- production readiness
 
 Provide practical recommendations.
 
