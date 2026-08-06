@@ -32,3 +32,11 @@ class TerraformReviewRequest(BaseModel):
 
 class TerraformReviewResponse(BaseModel):
     review: str
+
+
+class LogExplanationRequest(BaseModel):
+    logs: str
+
+
+class LogExplanationResponse(BaseModel):
+    explanation: str
