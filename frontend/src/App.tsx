@@ -1,16 +1,29 @@
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
+import DashboardLayout from "./layouts/DashboardLayout";
+
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import AIAssistant from "./pages/AIAssistant";
+
 function App() {
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="bg-white rounded-xl shadow-lg p-10">
-        <h1 className="text-4xl font-bold text-blue-600">
-          AI DevOps Platform
-        </h1>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
 
-        <p className="mt-4 text-gray-600">
-          Sprint 4 Frontend Started
-        </p>
-      </div>
-    </div>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/ai" element={<AIAssistant />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
