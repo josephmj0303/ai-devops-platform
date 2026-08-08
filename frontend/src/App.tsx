@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import DashboardLayout from "./layouts/DashboardLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -15,13 +16,32 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Public route */}
         <Route path="/" element={<Login />} />
 
-        <Route element={<DashboardLayout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/ai" element={<AIAssistant />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+
+            <Route
+              path="/dashboard"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/projects"
+              element={<Projects />}
+            />
+
+            <Route
+              path="/ai"
+              element={<AIAssistant />}
+            />
+
+          </Route>
         </Route>
+
       </Routes>
     </BrowserRouter>
   );
