@@ -9,7 +9,7 @@ export default function Login() {
 
   const { login } = useAuth();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function Login() {
 
     try {
       const response = await loginApi({
-        username,
+        email,
         password,
       });
 
@@ -49,14 +49,15 @@ export default function Login() {
         </h1>
 
         <input
+          type="email"
           className="border w-full p-3 rounded mb-4"
-          placeholder="Username"
-          value={username}
+          placeholder="Email"
+          value={email}
           onChange={(e) =>
-            setUsername(e.target.value)
+            setEmail(e.target.value)
           }
         />
-
+        
         <input
           type="password"
           className="border w-full p-3 rounded mb-4"
