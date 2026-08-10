@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   chat,
@@ -7,6 +7,9 @@ import {
   reviewTerraform,
   explainLog,
 } from "../api/ai";
+
+import { getProjects } from "../api/projects";
+import type { Project } from "../types/project";
 
 type Operation =
   | "chat"
@@ -19,11 +22,39 @@ export default function AIAssistant() {
   const [operation, setOperation] =
     useState<Operation>("log");
 
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] =
+    useState("");
+
   const [input, setInput] = useState("");
   const [response, setResponse] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [loadingProjects, setLoadingProjects] =
+    useState(true);
+
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const data = await getProjects();
+
+        setProjects(data);
+
+        if (data.length > 0) {
+          setSelectedProject(String(data[0].id));
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load projects.");
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   const getPlaceholder = () => {
     switch (operation) {
@@ -78,7 +109,7 @@ export default function AIAssistant() {
       setError("");
       setResponse("");
 
-      let result: string;
+      let result = "";
 
       switch (operation) {
         case "chat": {
@@ -118,6 +149,7 @@ export default function AIAssistant() {
       setResponse(result);
     } catch (err) {
       console.error(err);
+
       setError(
         "AI request failed. Please check the backend and try again."
       );
@@ -129,6 +161,8 @@ export default function AIAssistant() {
   return (
     <div className="max-w-6xl mx-auto">
 
+      {/* Header */}
+
       <div className="mb-8">
         <h1 className="text-4xl font-bold">
           AI Assistant
@@ -139,9 +173,48 @@ export default function AIAssistant() {
         </p>
       </div>
 
+      {/* AI Form */}
+
       <div className="bg-white rounded-lg shadow p-6">
 
         <form onSubmit={handleAnalyze}>
+
+          {/* Project */}
+
+          <label className="block font-semibold mb-2">
+            Project
+          </label>
+
+          <select
+            value={selectedProject}
+            onChange={(e) =>
+              setSelectedProject(e.target.value)
+            }
+            disabled={
+              loadingProjects ||
+              projects.length === 0
+            }
+            className="border w-full p-3 rounded mb-6"
+          >
+            {projects.length === 0 ? (
+              <option value="">
+                {loadingProjects
+                  ? "Loading projects..."
+                  : "No projects available"}
+              </option>
+            ) : (
+              projects.map((project) => (
+                <option
+                  key={project.id}
+                  value={project.id}
+                >
+                  {project.name}
+                </option>
+              ))
+            )}
+          </select>
+
+          {/* Operation */}
 
           <label className="block font-semibold mb-2">
             Operation
@@ -153,6 +226,7 @@ export default function AIAssistant() {
               setOperation(
                 e.target.value as Operation
               );
+
               setInput("");
               setResponse("");
               setError("");
@@ -180,6 +254,8 @@ export default function AIAssistant() {
             </option>
           </select>
 
+          {/* Input */}
+
           <label className="block font-semibold mb-2">
             Input
           </label>
@@ -194,11 +270,15 @@ export default function AIAssistant() {
             className="border w-full p-3 rounded font-mono text-sm"
           />
 
+          {/* Error */}
+
           {error && (
             <div className="text-red-500 mt-4">
               {error}
             </div>
           )}
+
+          {/* Submit */}
 
           <button
             type="submit"
@@ -211,7 +291,10 @@ export default function AIAssistant() {
           </button>
 
         </form>
+
       </div>
+
+      {/* Response */}
 
       {response && (
         <div className="bg-white rounded-lg shadow p-6 mt-8">
