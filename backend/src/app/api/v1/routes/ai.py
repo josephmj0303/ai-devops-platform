@@ -16,6 +16,13 @@ from app.schemas.ai import (
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
 
+from app.prompts.chat import build_chat_prompt
+from app.prompts.dockerfile import build_dockerfile_review_prompt
+from app.prompts.kubernetes import build_kubernetes_review_prompt
+from app.prompts.terraform import build_terraform_review_prompt
+from app.prompts.logs import build_log_analysis_prompt
+
+
 router = APIRouter(
     prefix="/ai",
     tags=["AI"],
@@ -32,8 +39,10 @@ async def chat(
 ):
     service = AIService()
 
+    prompt = build_chat_prompt(request.prompt)
+
     response = await service.generate(
-        prompt=request.prompt,
+        prompt=prompt,
         system_prompt=request.system_prompt,
     )
 
@@ -50,27 +59,16 @@ async def review_dockerfile(
 ):
     service = AIService()
 
-    prompt = f"""
-You are an experienced DevOps Engineer.
+    prompt = build_dockerfile_review_prompt(
+        request.dockerfile
+    )
 
-Review the following Dockerfile.
-
-Focus on:
-
-- Security
-- Image size
-- Best practices
-- Performance
-- Production readiness
-
-Dockerfile:
-
-{request.dockerfile}
-"""
-
-    response = await service.generate(prompt=prompt)
+    response = await service.generate(
+        prompt=prompt
+    )
 
     return DockerReviewResponse(review=response)
+
 
 @router.post(
     "/review/kubernetes",
@@ -82,29 +80,16 @@ async def review_kubernetes(
 ):
     service = AIService()
 
-    prompt = f"""
-You are an experienced Kubernetes and DevOps Engineer.
+    prompt = build_kubernetes_review_prompt(
+        request.manifest
+    )
 
-Review the following Kubernetes manifest.
-
-Focus on:
-
-- image tags
-- resource limits
-- probes
-- security
-- production readiness
-
-Provide practical recommendations.
-
-Manifest:
-
-{request.manifest}
-"""
-
-    response = await service.generate(prompt=prompt)
+    response = await service.generate(
+        prompt=prompt
+    )
 
     return KubernetesReviewResponse(review=response)
+
 
 @router.post(
     "/review/terraform",
@@ -116,25 +101,13 @@ async def review_terraform(
 ):
     service = AIService()
 
-    prompt = f"""
-You are a DevOps Engineer.
+    prompt = build_terraform_review_prompt(
+        request.terraform
+    )
 
-Review this Terraform configuration.
-
-Comment on:
-
-- security
-- best practices
-- resource organization
-- naming
-- production readiness
-
-Terraform:
-
-{request.terraform}
-"""
-
-    response = await service.generate(prompt=prompt)
+    response = await service.generate(
+        prompt=prompt
+    )
 
     return TerraformReviewResponse(review=response)
 
@@ -149,22 +122,14 @@ async def explain_log(
 ):
     service = AIService()
 
-    prompt = f"""
-You are a DevOps Engineer.
+    prompt = build_log_analysis_prompt(
+        request.logs
+    )
 
-Analyze the following application log.
+    response = await service.generate(
+        prompt=prompt
+    )
 
-Provide:
-
-- likely cause
-- troubleshooting steps
-- possible fixes
-
-Logs:
-
-{request.logs}
-"""
-
-    response = await service.generate(prompt=prompt)
-
-    return LogExplanationResponse(explanation=response)
+    return LogExplanationResponse(
+        explanation=response
+    )
