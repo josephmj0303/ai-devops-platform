@@ -2,8 +2,9 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
 } from "react";
+
+import type { ReactNode } from "react";
 
 interface AuthContextType {
   token: string | null;
