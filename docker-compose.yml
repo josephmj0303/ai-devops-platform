@@ -1,4 +1,5 @@
 services:
+
   postgres:
     image: postgres:17
     container_name: ai-devops-postgres
@@ -16,6 +17,34 @@ services:
     container_name: ai-devops-redis
     ports:
       - "6380:6379"
+
+  backend:
+    build:
+      context: ./backend
+    image: ai-devops-backend:dev
+    container_name: ai-devops-backend
+    environment:
+      ENVIRONMENT: local
+      DEBUG: "true"
+      HOST: 0.0.0.0
+      PORT: 8000
+
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/ai_devops
+      REDIS_URL: redis://redis:6379/0
+
+      PROVIDER: ollama
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      OLLAMA_MODEL: llama3.2:3b
+
+    ports:
+      - "8000:8000"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    depends_on:
+      - postgres
+      - redis
 
 volumes:
   postgres_data:
