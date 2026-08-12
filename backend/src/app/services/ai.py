@@ -47,3 +47,20 @@ class AIService:
             response = response.strip()
 
         return json.loads(response)
+
+    async def analyze_kubernetes(
+        self,
+        prompt: str,
+    ) -> dict:
+        response = await self.generate(prompt=prompt)
+
+        response = response.strip()
+
+        if response.startswith("```"):
+            response = response.replace("```json", "")
+            response = response.replace("```", "")
+            response = response.strip()
+
+        return json.loads(response)
+
+
