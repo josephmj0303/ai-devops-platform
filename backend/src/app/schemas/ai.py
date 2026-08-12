@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from typing import Literal
 
+from pydantic import BaseModel, Field
 
 class AIChatRequest(BaseModel):
     prompt: str
@@ -43,9 +44,9 @@ class LogExplanationResponse(BaseModel):
 
 
 class DevOpsAnalysisResponse(BaseModel):
-    severity: str
-    component: str
+    severity: Literal["low", "medium", "high", "critical"]
+    component: str = Field(min_length=1, max_length=100)
     summary: str
     likely_cause: str
     impact: str
-    recommended_actions: list[str]
+    recommended_actions: list[str] = Field(min_length=1)
