@@ -27,8 +27,7 @@ The JSON must contain exactly these fields:
 
 {{
   "severity": "low | medium | high | critical",
-  "component": "affected application, service, database, container, or infrastructure component",
-  "summary": "short summary of the incident",
+  "component": "single concise component name, such as PostgreSQL, Redis, Docker, Kubernetes, FastAPI, or Nginx",  "summary": "short summary of the incident",
   "likely_cause": "most likely root cause",
   "impact": "likely impact on the application or infrastructure",
   "recommended_actions": [
@@ -46,6 +45,8 @@ Rules:
 - recommended_actions must be a JSON array of practical troubleshooting or remediation actions.
 - Base the analysis on the provided logs.
 - Do not invent specific infrastructure details that are not supported by the logs.
+- component must contain only one concise component name.
+- Do not return multiple names separated by commas.
 
 Application Logs:
 
