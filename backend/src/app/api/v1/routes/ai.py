@@ -12,6 +12,7 @@ from app.schemas.ai import (
     TerraformReviewResponse,
     LogExplanationRequest,
     LogExplanationResponse,
+    DevOpsAnalysisResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -20,7 +21,7 @@ from app.prompts.chat import build_chat_prompt
 from app.prompts.dockerfile import build_dockerfile_review_prompt
 from app.prompts.kubernetes import build_kubernetes_review_prompt
 from app.prompts.terraform import build_terraform_review_prompt
-from app.prompts.logs import build_log_analysis_prompt
+from app.prompts.logs import (build_log_analysis_prompt, build_structured_log_analysis_prompt,)
 
 
 router = APIRouter(
@@ -133,3 +134,24 @@ async def explain_log(
     return LogExplanationResponse(
         explanation=response
     )
+
+
+@router.post(
+    "/analyze/logs",
+    response_model=DevOpsAnalysisResponse,
+)
+async def analyze_logs(
+    request: LogExplanationRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = build_structured_log_analysis_prompt(
+        request.logs
+    )
+
+    analysis = await service.analyze_logs(
+        prompt=prompt
+    )
+
+    return DevOpsAnalysisResponse(**analysis)
