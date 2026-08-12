@@ -40,3 +40,12 @@ class LogExplanationRequest(BaseModel):
 
 class LogExplanationResponse(BaseModel):
     explanation: str
+
+
+class DevOpsAnalysisResponse(BaseModel):
+    severity: str
+    component: str
+    summary: str
+    likely_cause: str
+    impact: str
+    recommended_actions: list[str]
