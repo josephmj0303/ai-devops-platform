@@ -57,3 +57,10 @@ class DockerAnalysisResponse(BaseModel):
     summary: str
     findings: list[str] = Field(min_length=1)
     recommended_actions: list[str] = Field(min_length=1)
+
+class KubernetesAnalysisResponse(BaseModel):
+    severity: Literal["low", "medium", "high", "critical"]
+    component: str = Field(min_length=1, max_length=100)
+    summary: str
+    findings: list[str] = Field(min_length=1)
+    recommended_actions: list[str] = Field(min_length=1)
