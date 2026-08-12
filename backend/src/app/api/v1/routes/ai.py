@@ -14,13 +14,14 @@ from app.schemas.ai import (
     LogExplanationResponse,
     DevOpsAnalysisResponse,
     DockerAnalysisResponse,
+    KubernetesAnalysisResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
 
 from app.prompts.chat import build_chat_prompt
 from app.prompts.dockerfile import (build_dockerfile_review_prompt, build_structured_dockerfile_analysis_prompt,)
-from app.prompts.kubernetes import build_kubernetes_review_prompt
+from app.prompts.kubernetes import (build_kubernetes_review_prompt, build_structured_kubernetes_analysis_prompt,)
 from app.prompts.terraform import build_terraform_review_prompt
 from app.prompts.logs import (build_log_analysis_prompt, build_structured_log_analysis_prompt,)
 
@@ -177,3 +178,23 @@ async def analyze_dockerfile(
     )
 
     return DockerAnalysisResponse(**analysis)
+
+@router.post(
+    "/analyze/kubernetes",
+    response_model=KubernetesAnalysisResponse,
+)
+async def analyze_kubernetes(
+    request: KubernetesReviewRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = build_structured_kubernetes_analysis_prompt(
+        request.manifest
+    )
+
+    analysis = await service.analyze_kubernetes(
+        prompt=prompt
+    )
+
+    return KubernetesAnalysisResponse(**analysis)
