@@ -6,6 +6,10 @@ import type {
   KubernetesReviewResponse,
   TerraformReviewResponse,
   LogExplanationResponse,
+  LogAnalysisResponse,
+  DockerAnalysisResponse,
+  KubernetesAnalysisResponse,
+  TerraformAnalysisResponse,
 } from "../types/ai";
 
 export const chat = async (
@@ -70,6 +74,64 @@ export const explainLog = async (
       "/ai/explain/log",
       {
         logs,
+      }
+    );
+
+  return response.data;
+};
+
+/* Structured AI analysis */
+
+export const analyzeLogs = async (
+  logs: string
+): Promise<LogAnalysisResponse> => {
+  const response =
+    await api.post<LogAnalysisResponse>(
+      "/ai/analyze/logs",
+      {
+        logs,
+      }
+    );
+
+  return response.data;
+};
+
+export const analyzeDockerfile = async (
+  dockerfile: string
+): Promise<DockerAnalysisResponse> => {
+  const response =
+    await api.post<DockerAnalysisResponse>(
+      "/ai/analyze/dockerfile",
+      {
+        dockerfile,
+      }
+    );
+
+  return response.data;
+};
+
+export const analyzeKubernetes = async (
+  manifest: string
+): Promise<KubernetesAnalysisResponse> => {
+  const response =
+    await api.post<KubernetesAnalysisResponse>(
+      "/ai/analyze/kubernetes",
+      {
+        manifest,
+      }
+    );
+
+  return response.data;
+};
+
+export const analyzeTerraform = async (
+  terraform: string
+): Promise<TerraformAnalysisResponse> => {
+  const response =
+    await api.post<TerraformAnalysisResponse>(
+      "/ai/analyze/terraform",
+      {
+        terraform,
       }
     );
 
