@@ -12,17 +12,22 @@ class AIService:
         self,
         prompt: str,
         system_prompt: str | None = None,
+        response_format: str | None = None,
     ) -> str:
         return await self.provider.generate(
             prompt=prompt,
             system_prompt=system_prompt,
+            response_format=response_format,
         )
 
     async def analyze_logs(
         self,
         prompt: str,
     ) -> dict:
-        response = await self.generate(prompt=prompt)
+        response = await self.generate(
+            prompt=prompt,
+            response_format="json",
+        )
 
         response = response.strip()
 
@@ -37,7 +42,10 @@ class AIService:
         self,
         prompt: str,
     ) -> dict:
-        response = await self.generate(prompt=prompt)
+        response = await self.generate(
+            prompt=prompt,
+            response_format="json",
+        )
 
         response = response.strip()
 
@@ -52,7 +60,10 @@ class AIService:
         self,
         prompt: str,
     ) -> dict:
-        response = await self.generate(prompt=prompt)
+        response = await self.generate(
+            prompt=prompt,
+            response_format="json",
+        )
 
         response = response.strip()
 
@@ -67,7 +78,10 @@ class AIService:
         self,
         prompt: str,
     ) -> dict:
-        response = await self.generate(prompt=prompt)
+        response = await self.generate(
+            prompt=prompt,
+            response_format="json",
+        )
 
         response = response.strip()
 
