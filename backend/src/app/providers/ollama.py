@@ -14,17 +14,20 @@ class OllamaProvider(AIProvider):
         self,
         prompt: str,
         system_prompt: str | None = None,
+        response_format: str | None = None,
     ) -> str:
 
         payload = {
             "model": settings.ai.OLLAMA_MODEL,
             "prompt": prompt,
             "stream": False,
-            "format": "json",
         }
 
         if system_prompt:
             payload["system"] = system_prompt
+
+        if response_format:
+            payload["format"] = response_format
 
         async with httpx.AsyncClient(timeout=300.0) as client:
 

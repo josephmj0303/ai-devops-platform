@@ -12,6 +12,6 @@ class AIProvider(ABC):
         response_format: str | None = None,
     ) -> str:
         """
-        Generate a response from an AI model.
+        Generate a response from an AI provider.
         """
         raise NotImplementedError
