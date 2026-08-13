@@ -1,340 +1,311 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
-  chat,
-  reviewDockerfile,
-  reviewKubernetes,
-  reviewTerraform,
-  explainLog,
+  analyzeLogs,
+  analyzeDockerfile,
+  analyzeKubernetes,
+  analyzeTerraform,
 } from "../api/ai";
 
-import { getProjects } from "../api/projects";
-import type { Project } from "../types/project";
+import type {
+  AnalysisSeverity,
+  DockerAnalysisResponse,
+  KubernetesAnalysisResponse,
+  TerraformAnalysisResponse,
+  LogAnalysisResponse,
+} from "../types/ai";
 
-type Operation =
-  | "chat"
+type AnalysisType =
+  | "logs"
   | "dockerfile"
   | "kubernetes"
-  | "terraform"
-  | "log";
+  | "terraform";
 
-export default function AIAssistant() {
-  const [operation, setOperation] =
-    useState<Operation>("log");
+type AnalysisResult =
+  | LogAnalysisResponse
+  | DockerAnalysisResponse
+  | KubernetesAnalysisResponse
+  | TerraformAnalysisResponse;
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] =
-    useState("");
+const analysisLabels: Record<AnalysisType, string> = {
+  logs: "Application Logs",
+  dockerfile: "Dockerfile",
+  kubernetes: "Kubernetes Manifest",
+  terraform: "Terraform",
+};
+
+const placeholders: Record<AnalysisType, string> = {
+  logs: `Paste application logs here...
+
+Example:
+ERROR: connection refused
+database postgres:5432 is not reachable`,
+
+  dockerfile: `Paste your Dockerfile here...
+
+Example:
+FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD ["npm", "start"]`,
+
+  kubernetes: `Paste your Kubernetes manifest here...
+
+Example:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app`,
+
+  terraform: `Paste your Terraform configuration here...
+
+Example:
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_instance" "app" {
+  ... 
+}`,
+};
+
+function severityClass(
+  severity: AnalysisSeverity
+): string {
+  return `severity-${severity}`;
+}
+
+function AIAssistant() {
+  const [analysisType, setAnalysisType] =
+    useState<AnalysisType>("logs");
 
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
+  const [result, setResult] =
+    useState<AnalysisResult | null>(null);
 
   const [loading, setLoading] = useState(false);
-  const [loadingProjects, setLoadingProjects] =
-    useState(true);
-
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        const data = await getProjects();
-
-        setProjects(data);
-
-        if (data.length > 0) {
-          setSelectedProject(String(data[0].id));
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load projects.");
-      } finally {
-        setLoadingProjects(false);
-      }
-    };
-
-    loadProjects();
-  }, []);
-
-  const getPlaceholder = () => {
-    switch (operation) {
-      case "chat":
-        return "Describe your DevOps problem or question...";
-
-      case "dockerfile":
-        return "Paste your Dockerfile here...";
-
-      case "kubernetes":
-        return "Paste your Kubernetes manifest here...";
-
-      case "terraform":
-        return "Paste your Terraform configuration here...";
-
-      case "log":
-        return "Paste your application logs here...";
-    }
-  };
-
-  const getResponseTitle = () => {
-    switch (operation) {
-      case "chat":
-        return "AI Response";
-
-      case "dockerfile":
-        return "Dockerfile Review";
-
-      case "kubernetes":
-        return "Kubernetes Review";
-
-      case "terraform":
-        return "Terraform Review";
-
-      case "log":
-        return "Log Analysis";
-    }
-  };
-
-  const handleAnalyze = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault();
-
+  const handleAnalyze = async () => {
     if (!input.trim()) {
-      setError("Please provide some input.");
+      setError("Please provide input for analysis.");
       return;
     }
 
+    setLoading(true);
+    setError("");
+    setResult(null);
+
     try {
-      setLoading(true);
-      setError("");
-      setResponse("");
+      let response: AnalysisResult;
 
-      let result = "";
-
-      switch (operation) {
-        case "chat": {
-          const data = await chat(input);
-          result = data.response;
+      switch (analysisType) {
+        case "logs":
+          response = await analyzeLogs(input);
           break;
-        }
 
-        case "dockerfile": {
-          const data =
-            await reviewDockerfile(input);
-          result = data.review;
+        case "dockerfile":
+          response = await analyzeDockerfile(input);
           break;
-        }
 
-        case "kubernetes": {
-          const data =
-            await reviewKubernetes(input);
-          result = data.review;
+        case "kubernetes":
+          response = await analyzeKubernetes(input);
           break;
-        }
 
-        case "terraform": {
-          const data =
-            await reviewTerraform(input);
-          result = data.review;
+        case "terraform":
+          response = await analyzeTerraform(input);
           break;
-        }
-
-        case "log": {
-          const data = await explainLog(input);
-          result = data.explanation;
-          break;
-        }
       }
 
-      setResponse(result);
+      setResult(response);
     } catch (err) {
-      console.error(err);
+      console.error("AI analysis failed:", err);
 
       setError(
-        "AI request failed. Please check the backend and try again."
+        "AI analysis failed. Please check the backend service and try again."
       );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleTypeChange = (
+    type: AnalysisType
+  ) => {
+    setAnalysisType(type);
+    setInput("");
+    setResult(null);
+    setError("");
+  };
+
   return (
-    <div className="max-w-6xl mx-auto">
-
-      {/* Header */}
-
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold">
-          AI DevOps Assistant
-        </h1>
-
-        <p className="text-gray-600 mt-2">
-          Analyze logs, review DevOps configurations, and troubleshoot infrastructure using AI.
-        </p>
+    <div className="ai-page">
+      <div className="ai-header">
+        <div>
+          <h1>AI DevOps Assistant</h1>
+          <p>
+            Analyze DevOps configurations, infrastructure,
+            and application logs using AI.
+          </p>
+        </div>
       </div>
 
-      {/* AI Form */}
-
-      <div className="bg-white rounded-lg shadow p-6">
-
-        <form onSubmit={handleAnalyze}>
-
-          {/* Project */}
-
-          <label className="block font-semibold mb-2">
-            Project
+      <div className="ai-console">
+        <div className="ai-controls">
+          <label htmlFor="analysis-type">
+            Analysis Type
           </label>
 
           <select
-            value={selectedProject}
-            onChange={(e) =>
-              setSelectedProject(e.target.value)
+            id="analysis-type"
+            value={analysisType}
+            onChange={(event) =>
+              handleTypeChange(
+                event.target.value as AnalysisType
+              )
             }
-            disabled={
-              loadingProjects ||
-              projects.length === 0
-            }
-            className="border w-full p-3 rounded mb-6"
           >
-            {projects.length === 0 ? (
-              <option value="">
-                {loadingProjects
-                  ? "Loading projects..."
-                  : "No projects available"}
-              </option>
-            ) : (
-              projects.map((project) => (
-                <option
-                  key={project.id}
-                  value={project.id}
-                >
-                  {project.name}
-                </option>
-              ))
-            )}
-          </select>
-            <p className="text-sm text-gray-500 mb-6">
-              {operation === "log" &&
-                "Analyze application logs to identify likely causes and troubleshooting steps."}
-
-              {operation === "chat" &&
-                "Ask general DevOps questions and get practical recommendations."}
-
-              {operation === "dockerfile" &&
-                "Review a Dockerfile for security, image size, and best practices."}
-
-              {operation === "kubernetes" &&
-                "Review Kubernetes manifests for reliability, security, and best practices."}
-
-              {operation === "terraform" &&
-                "Review Terraform configuration for security, organization, and best practices."}
-            </p>
-          {/* Operation */}
-
-          <label className="block font-semibold mb-2">
-            Operation
-          </label>
-
-          <select
-            value={operation}
-            onChange={(e) => {
-              setOperation(
-                e.target.value as Operation
-              );
-
-              setInput("");
-              setResponse("");
-              setError("");
-            }}
-            className="border w-full p-3 rounded mb-6"
-          >
-            <option value="log">
-              Explain Application Log
-            </option>
-
-            <option value="chat">
-              General DevOps Chat
+            <option value="logs">
+              Application Logs
             </option>
 
             <option value="dockerfile">
-              Review Dockerfile
+              Dockerfile
             </option>
 
             <option value="kubernetes">
-              Review Kubernetes Manifest
+              Kubernetes Manifest
             </option>
 
             <option value="terraform">
-              Review Terraform
+              Terraform
             </option>
           </select>
+        </div>
 
-          {/* Input */}
-
-          <label className="block font-semibold mb-2">
-            {operation === "log" && "Application Logs"}
-            {operation === "chat" && "DevOps Question"}
-            {operation === "dockerfile" && "Dockerfile"}
-            {operation === "kubernetes" && "Kubernetes Manifest"}
-            {operation === "terraform" && "Terraform Configuration"}		
+        <div className="ai-input-section">
+          <label htmlFor="ai-input">
+            {analysisLabels[analysisType]}
           </label>
 
           <textarea
+            id="ai-input"
             value={input}
-            onChange={(e) =>
-              setInput(e.target.value)
+            onChange={(event) =>
+              setInput(event.target.value)
             }
-            placeholder={getPlaceholder()}
-            rows={12}
-            className="border w-full p-3 rounded font-mono text-sm"
+            placeholder={placeholders[analysisType]}
+            rows={16}
           />
+        </div>
 
-          {/* Error */}
+        {error && (
+          <div className="ai-error">
+            {error}
+          </div>
+        )}
 
-          {error && (
-            <div className="text-red-500 mt-4">
-              {error}
-            </div>
-          )}
-
-          {/* Submit */}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded"
-          >
-            {loading
-              ? "AI is processing..."
-              : operation === "chat"
-                ? "Ask AI"
-                : "Analyze"}
-          </button>
-
-        </form>
-
+        <button
+          className="ai-analyze-button"
+          onClick={handleAnalyze}
+          disabled={loading}
+        >
+          {loading
+            ? "Analyzing..."
+            : "Analyze with AI"}
+        </button>
       </div>
 
-      {/* Response */}
-
-      {response && (
-        <div className="bg-white rounded-lg shadow p-6 mt-8">
-
-          <h2 className="text-2xl font-semibold mb-2">
-            {getResponseTitle()}
-          </h2>
-
-          <p className="text-sm text-gray-500 mb-4">
-            Generated by the configured AI provider.
-          </p>
-
-          <pre className="whitespace-pre-wrap text-sm leading-6">
-            {response}
-          </pre>
-
-        </div>
+      {result && (
+        <AnalysisResultCard result={result} />
       )}
-
     </div>
   );
 }
+
+interface AnalysisResultCardProps {
+  result: AnalysisResult;
+}
+
+function AnalysisResultCard({
+  result,
+}: AnalysisResultCardProps) {
+  const isLogResult =
+    "likely_cause" in result &&
+    "impact" in result;
+
+  return (
+    <div className="ai-result">
+      <div className="ai-result-header">
+        <div>
+          <h2>AI Analysis</h2>
+          <span className="ai-component">
+            {result.component}
+          </span>
+        </div>
+
+        <span
+          className={`severity-badge ${severityClass(
+            result.severity
+          )}`}
+        >
+          {result.severity.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="ai-result-section">
+        <h3>Summary</h3>
+        <p>{result.summary}</p>
+      </div>
+
+      {isLogResult ? (
+        <>
+          <div className="ai-result-section">
+            <h3>Likely Cause</h3>
+            <p>{result.likely_cause}</p>
+          </div>
+
+          <div className="ai-result-section">
+            <h3>Impact</h3>
+            <p>{result.impact}</p>
+          </div>
+        </>
+      ) : (
+        <div className="ai-result-section">
+          <h3>Findings</h3>
+
+          <ul>
+            {result.findings?.map(
+              (finding, index) => (
+                <li key={index}>
+                  {finding}
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+      )}
+
+      <div className="ai-result-section">
+        <h3>Recommended Actions</h3>
+
+        <ul className="recommendations">
+          {result.recommended_actions.map(
+            (action, index) => (
+              <li key={index}>
+                <span className="checkmark">
+                  ✓
+                </span>
+
+                <span>{action}</span>
+              </li>
+            )
+          )}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default AIAssistant;
