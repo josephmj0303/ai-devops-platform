@@ -9,6 +9,7 @@ class AIProvider(ABC):
         self,
         prompt: str,
         system_prompt: str | None = None,
+        response_format: str | None = None,
     ) -> str:
         """
         Generate a response from an AI model.

@@ -20,6 +20,7 @@ class OllamaProvider(AIProvider):
             "model": settings.ai.OLLAMA_MODEL,
             "prompt": prompt,
             "stream": False,
+            "format": "json",
         }
 
         if system_prompt:
