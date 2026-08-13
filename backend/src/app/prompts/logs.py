@@ -17,36 +17,57 @@ Application Logs:
 {logs}
 """
 
+
 def build_structured_log_analysis_prompt(logs: str) -> str:
     return f"""
-You are an experienced DevOps Engineer analyzing application logs.
+You are an experienced DevOps Engineer.
 
-Analyze the logs and return ONLY valid JSON.
+Analyze the application logs below.
 
-The JSON must contain exactly these fields:
+Return ONLY ONE JSON OBJECT.
+
+The JSON object MUST contain these six fields:
+
+- severity
+- component
+- summary
+- likely_cause
+- impact
+- recommended_actions
+
+Use this exact JSON structure:
 
 {{
-  "severity": "low | medium | high | critical",
-  "component": "single concise component name, such as PostgreSQL, Redis, Docker, Kubernetes, FastAPI, or Nginx",  "summary": "short summary of the incident",
-  "likely_cause": "most likely root cause",
-  "impact": "likely impact on the application or infrastructure",
+  "severity": "critical",
+  "component": "PostgreSQL",
+  "summary": "Connection to PostgreSQL failed",
+  "likely_cause": "PostgreSQL connection was refused",
+  "impact": "Application cannot access the database",
   "recommended_actions": [
-    "action 1",
-    "action 2",
-    "action 3"
+    "Verify PostgreSQL is running",
+    "Check connectivity between the application and PostgreSQL",
+    "Verify the database connection configuration"
   ]
 }}
 
-Rules:
+STRICT RULES:
 
-- Do not use Markdown.
-- Do not wrap the JSON in ```json or ``` blocks.
-- severity must be one of: low, medium, high, critical.
-- recommended_actions must be a JSON array of practical troubleshooting or remediation actions.
-- Base the analysis on the provided logs.
-- Do not invent specific infrastructure details that are not supported by the logs.
-- component must contain only one concise component name.
-- Do not return multiple names separated by commas.
+1. Return JSON only.
+2. Do not return Markdown.
+3. Do not return ```json.
+4. Do not add any text before or after the JSON object.
+5. The "severity" field MUST contain exactly one of:
+   "low", "medium", "high", "critical".
+6. The "component" field MUST be one concise component name.
+7. The "summary" field MUST be a short description of the problem.
+8. The "likely_cause" field MUST contain the most likely cause.
+9. The "impact" field MUST describe the effect on the application or infrastructure.
+10. The "recommended_actions" field MUST be a JSON array containing practical actions.
+11. Do not omit any field.
+12. Do not use null for any field.
+13. Do not use empty strings.
+14. Base the analysis only on the provided logs.
+15. Do not invent infrastructure details that are not supported by the logs.
 
 Application Logs:
 
