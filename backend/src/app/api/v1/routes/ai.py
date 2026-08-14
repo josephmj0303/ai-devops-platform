@@ -25,7 +25,12 @@ from app.prompts.dockerfile import (build_dockerfile_review_prompt, build_struct
 from app.prompts.kubernetes import (build_kubernetes_review_prompt, build_structured_kubernetes_analysis_prompt,)
 from app.prompts.terraform import (build_terraform_review_prompt, build_structured_terraform_analysis_prompt,)
 from app.prompts.logs import (build_log_analysis_prompt, build_structured_log_analysis_prompt,)
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.session import get_db
+from app.repositories.ai_analysis import AIAnalysisRepository
+from app.schemas.ai_analysis import AIAnalysisResponse
+from app.services.ai_analysis import AIAnalysisService
 
 router = APIRouter(
     prefix="/ai",
@@ -218,4 +223,19 @@ async def analyze_terraform(
         prompt=prompt
     )
 
-    return TerraformAnalysisResponse(**analysis)   
+    return TerraformAnalysisResponse(**analysis)
+
+@router.get(
+    "/history",
+    response_model=list[AIAnalysisResponse],
+)
+async def get_analysis_history(
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    repository = AIAnalysisRepository(session)
+    service = AIAnalysisService(repository)
+
+    return await service.list_user_analyses(
+        current_user.id
+    )
