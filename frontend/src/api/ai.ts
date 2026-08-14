@@ -10,6 +10,7 @@ import type {
   DockerAnalysisResponse,
   KubernetesAnalysisResponse,
   TerraformAnalysisResponse,
+  AIAnalysisHistoryItem,
 } from "../types/ai";
 
 export const chat = async (
@@ -134,6 +135,16 @@ export const analyzeTerraform = async (
         terraform,
       }
     );
+
+  return response.data;
+};
+
+export const getAnalysisHistory = async (): Promise<
+  AIAnalysisHistoryItem[]
+> => {
+  const response = await api.get<AIAnalysisHistoryItem[]>(
+    "/ai/history"
+  );
 
   return response.data;
 };
