@@ -62,3 +62,26 @@ export interface TerraformAnalysisResponse
   extends DevOpsAnalysisResponse {
   findings: string[];
 }
+
+export interface AIAnalysisHistoryItem {
+  id: number;
+  user_id: string;
+  analysis_type: AnalysisType;
+  input_text: string;
+  result: {
+    severity: AnalysisSeverity;
+    component: string;
+    summary: string;
+    likely_cause?: string;
+    impact?: string;
+    findings?: string[];
+    recommended_actions: string[];
+  };
+  created_at: string;
+}
+
+export type AnalysisType =
+  | "logs"
+  | "dockerfile"
+  | "kubernetes"
+  | "terraform";
