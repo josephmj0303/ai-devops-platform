@@ -1,25 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   analyzeLogs,
   analyzeDockerfile,
   analyzeKubernetes,
   analyzeTerraform,
+  getAnalysisHistory,
 } from "../api/ai";
 
 import type {
   AnalysisSeverity,
+  AIAnalysisHistoryItem,
+  AnalysisType,
   DockerAnalysisResponse,
   KubernetesAnalysisResponse,
   TerraformAnalysisResponse,
   LogAnalysisResponse,
 } from "../types/ai";
-
-type AnalysisType =
-  | "logs"
-  | "dockerfile"
-  | "kubernetes"
-  | "terraform";
 
 type AnalysisResult =
   | LogAnalysisResponse
@@ -86,6 +83,26 @@ function AIAssistant() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [history, setHistory] = useState<
+    AIAnalysisHistoryItem[]
+  >([]);
+
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const data = await getAnalysisHistory();
+        setHistory(data);
+      } catch (err) {
+        console.error("Failed to load AI analysis history:", err);
+      } finally {
+        setHistoryLoading(false);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   const handleAnalyze = async () => {
     if (!input.trim()) {
@@ -119,8 +136,9 @@ function AIAssistant() {
       }
 
       setResult(response);
-    } catch (err) {
-      console.error("AI analysis failed:", err);
+
+      const updatedHistory = await getAnalysisHistory();
+      setHistory(updatedHistory);
 
       setError(
         "AI analysis failed. Please check the backend service and try again."
@@ -220,6 +238,57 @@ function AIAssistant() {
       {result && (
         <AnalysisResultCard result={result} />
       )}
+      <div className="ai-history">
+        <div className="ai-history-header">
+          <h2>Analysis History</h2>
+          <span>{history.length} analyses</span>
+        </div>
+
+        {historyLoading ? (
+          <p className="ai-history-empty">
+            Loading history...
+          </p>
+        ) : history.length === 0 ? (
+          <p className="ai-history-empty">
+            No analysis history yet.
+          </p>
+        ) : (
+          <div className="ai-history-list">
+            {history.map((item) => (
+              <div
+                className="ai-history-item"
+                key={item.id}
+              >
+                <div className="ai-history-main">
+                  <div className="ai-history-title">
+                    {analysisLabels[item.analysis_type]}
+                  </div>
+
+                  <div className="ai-history-summary">
+                    {item.result.summary}
+                  </div>
+
+                  <div className="ai-history-meta">
+                    <span>{item.result.component}</span>
+                    <span>•</span>
+                    <span>
+                      {new Date(item.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <span
+                  className={`severity-badge ${severityClass(
+                    item.result.severity
+                  )}`}
+                >
+                  {item.result.severity.toUpperCase()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
