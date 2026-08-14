@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.models.project import Project
+    from app.models.ai_analysis import AIAnalysis
 
 class User(Base, UUIDMixin, TimestampMixin):
     __tablename__ = "users"
@@ -16,6 +17,12 @@ class User(Base, UUIDMixin, TimestampMixin):
     projects: Mapped[list["Project"]] = relationship(
         "Project",
         back_populates="owner",
+        cascade="all, delete-orphan",
+    )
+
+    ai_analyses: Mapped[list["AIAnalysis"]] = relationship(
+        "AIAnalysis",
+        back_populates="user",
         cascade="all, delete-orphan",
     )
 
