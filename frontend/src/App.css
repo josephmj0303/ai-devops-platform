@@ -364,3 +364,99 @@
     max-width: none;
   }
 }
+
+/* ---------------------------------------------------------
+   AI Analysis History
+   --------------------------------------------------------- */
+
+.ai-history {
+  margin-top: 24px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+.ai-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-history-header h2 {
+  margin: 0;
+
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-history-header span {
+  font-size: 16px;
+  color: #64748b;
+}
+
+.ai-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-history-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.ai-history-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ai-history-main {
+  min-width: 0;
+}
+
+.ai-history-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.ai-history-summary {
+  margin-top: 5px;
+
+  font-size: 15px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.ai-history-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 7px;
+
+  font-size: 14px;
+  color: #64748b;
+}
+
+.ai-history-empty {
+  margin: 20px 0 0;
+
+  font-size: 15px;
+  color: #64748b;
+}
