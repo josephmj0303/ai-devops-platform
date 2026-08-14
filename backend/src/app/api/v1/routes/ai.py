@@ -150,6 +150,7 @@ async def explain_log(
 )
 async def analyze_logs(
     request: LogExplanationRequest,
+    session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     service = AIService()
@@ -162,6 +163,16 @@ async def analyze_logs(
         prompt=prompt
     )
 
+    repository = AIAnalysisRepository(session)
+    analysis_service = AIAnalysisService(repository)
+
+    await analysis_service.create_analysis(
+        user_id=current_user.id,
+        analysis_type="logs",
+        input_text=request.logs,
+        result=analysis,
+    )
+
     return DevOpsAnalysisResponse(**analysis)
 
 
@@ -171,6 +182,7 @@ async def analyze_logs(
 )
 async def analyze_dockerfile(
     request: DockerReviewRequest,
+    session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     service = AIService()
@@ -183,7 +195,18 @@ async def analyze_dockerfile(
         prompt=prompt
     )
 
+    repository = AIAnalysisRepository(session)
+    analysis_service = AIAnalysisService(repository)
+
+    await analysis_service.create_analysis(
+        user_id=current_user.id,
+        analysis_type="dockerfile",
+        input_text=request.dockerfile,
+        result=analysis,
+    )
+
     return DockerAnalysisResponse(**analysis)
+
 
 @router.post(
     "/analyze/kubernetes",
@@ -191,6 +214,7 @@ async def analyze_dockerfile(
 )
 async def analyze_kubernetes(
     request: KubernetesReviewRequest,
+    session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     service = AIService()
@@ -203,7 +227,18 @@ async def analyze_kubernetes(
         prompt=prompt
     )
 
+    repository = AIAnalysisRepository(session)
+    analysis_service = AIAnalysisService(repository)
+
+    await analysis_service.create_analysis(
+        user_id=current_user.id,
+        analysis_type="kubernetes",
+        input_text=request.manifest,
+        result=analysis,
+    )
+
     return KubernetesAnalysisResponse(**analysis)
+
 
 @router.post(
     "/analyze/terraform",
@@ -211,6 +246,7 @@ async def analyze_kubernetes(
 )
 async def analyze_terraform(
     request: TerraformReviewRequest,
+    session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     service = AIService()
@@ -223,7 +259,18 @@ async def analyze_terraform(
         prompt=prompt
     )
 
+    repository = AIAnalysisRepository(session)
+    analysis_service = AIAnalysisService(repository)
+
+    await analysis_service.create_analysis(
+        user_id=current_user.id,
+        analysis_type="terraform",
+        input_text=request.terraform,
+        result=analysis,
+    )
+
     return TerraformAnalysisResponse(**analysis)
+
 
 @router.get(
     "/history",
