@@ -144,9 +144,6 @@ function AIAssistant() {
       setHistory(updatedHistory);
       } catch (err) {
         console.error("AI analysis failed:", err);
-        setError(
-          "AI analysis failed. Please check the backend service and try again."
-        );
     } finally { 
       setLoading(false); 
     } 
