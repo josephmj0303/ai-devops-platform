@@ -89,6 +89,9 @@ function AIAssistant() {
 
   const [historyLoading, setHistoryLoading] = useState(true);
 
+  const [selectedHistory, setSelectedHistory] =
+    useState<AIAnalysisHistoryItem | null>(null);
+
   useEffect(() => {
     const loadHistory = async () => {
       try {
@@ -256,9 +259,24 @@ function AIAssistant() {
           <div className="ai-history-list">
             {history.map((item) => (
               <div
-                className="ai-history-item"
+                className={`ai-history-item ${
+                  selectedHistory?.id === item.id
+                    ? "selected"
+                    : ""
+                }`}
                 key={item.id}
+                onClick={() => setSelectedHistory(item)}
               >
+                <button
+                  type="button"
+                  className="ai-history-view-button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setSelectedHistory(item);
+                  }}
+                >
+                  View
+                </button>
                 <div className="ai-history-main">
                   <div className="ai-history-title">
                     {analysisLabels[item.analysis_type]}
