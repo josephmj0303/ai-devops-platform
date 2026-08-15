@@ -400,5 +400,123 @@ function AnalysisResultCard({
     </div>
   );
 }
+interface HistoryDetailsProps {
+  analysis: AIAnalysisHistoryItem;
+  onClose: () => void;
+}
 
+function HistoryDetails({
+  analysis,
+  onClose,
+}: HistoryDetailsProps) {
+  const result = analysis.result;
+
+  return (
+    <div className="ai-history-details">
+      <div className="ai-history-details-header">
+        <div>
+          <h2>Analysis Details</h2>
+
+          <div className="ai-history-details-meta">
+            <span>
+              {analysisLabels[analysis.analysis_type]}
+            </span>
+
+            <span>•</span>
+
+            <span>
+              {new Date(
+                analysis.created_at
+              ).toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="ai-history-close-button"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
+
+      <div className="ai-history-details-status">
+        <span>
+          Component: <strong>{result.component}</strong>
+        </span>
+
+        <span
+          className={`severity-badge ${severityClass(
+            result.severity
+          )}`}
+        >
+          {result.severity.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="ai-result-section">
+        <h3>Summary</h3>
+        <p>{result.summary}</p>
+      </div>
+
+      <div className="ai-result-section">
+        <h3>Original Input</h3>
+
+        <pre className="ai-history-input">
+          {analysis.input_text}
+        </pre>
+      </div>
+
+      {result.likely_cause && (
+        <div className="ai-result-section">
+          <h3>Likely Cause</h3>
+          <p>{result.likely_cause}</p>
+        </div>
+      )}
+
+      {result.impact && (
+        <div className="ai-result-section">
+          <h3>Impact</h3>
+          <p>{result.impact}</p>
+        </div>
+      )}
+
+      {result.findings &&
+        result.findings.length > 0 && (
+          <div className="ai-result-section">
+            <h3>Findings</h3>
+
+            <ul>
+              {result.findings.map(
+                (finding, index) => (
+                  <li key={index}>
+                    {finding}
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        )}
+
+      <div className="ai-result-section">
+        <h3>Recommended Actions</h3>
+
+        <ul className="recommendations">
+          {result.recommended_actions.map(
+            (action, index) => (
+              <li key={index}>
+                <span className="checkmark">
+                  ✓
+                </span>
+
+                <span>{action}</span>
+              </li>
+            )
+          )}
+        </ul>
+      </div>
+    </div>
+  );
+}
 export default AIAssistant;
