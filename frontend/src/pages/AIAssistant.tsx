@@ -305,6 +305,12 @@ function AIAssistant() {
               </div>
             ))}
           </div>
+          {selectedHistory && (
+            <HistoryDetails
+              analysis={selectedHistory}
+              onClose={() => setSelectedHistory(null)}
+            />
+          )}  
         )}
       </div>
     </div>
