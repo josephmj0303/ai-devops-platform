@@ -17,9 +17,13 @@ from app.schemas.ai import (
     KubernetesAnalysisResponse,
     TerraformAnalysisResponse,
 )
+from app.schemas.devops_action import (
+    DockerRestartRequest,
+    DevOpsActionResponse,
+)
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
-
+from app.services.devops_action import DevOpsActionService
 from app.prompts.chat import build_chat_prompt
 from app.prompts.dockerfile import (build_dockerfile_review_prompt, build_structured_dockerfile_analysis_prompt,)
 from app.prompts.kubernetes import (build_kubernetes_review_prompt, build_structured_kubernetes_analysis_prompt,)
@@ -285,4 +289,18 @@ async def get_analysis_history(
 
     return await service.list_user_analyses(
         current_user.id
+    )
+
+@router.post(
+    "/actions/docker/restart",
+    response_model=DevOpsActionResponse,
+)
+async def restart_docker_container(
+    request: DockerRestartRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = DevOpsActionService()
+
+    return service.restart_docker_container(
+        request.container_name
     )
