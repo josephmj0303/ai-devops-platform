@@ -6,6 +6,22 @@ class DevOpsActionService:
     def __init__(self):
         self.client = docker.from_env()
 
+    def list_docker_containers(self) -> list[dict]:
+        containers = self.client.containers.list()
+
+        return [
+            {
+                "name": container.name,
+                "status": container.status,
+                "image": (
+                    container.image.tags[0]
+                    if container.image.tags
+                    else container.image.short_id
+                ),
+            }
+            for container in containers
+        ]
+
     def restart_docker_container(
         self,
         container_name: str,
