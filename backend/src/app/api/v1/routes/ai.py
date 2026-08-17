@@ -20,10 +20,12 @@ from app.schemas.ai import (
 from app.schemas.devops_action import (
     DockerRestartRequest,
     DevOpsActionResponse,
+    AvailableActionsResponse,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
 from app.services.devops_action import DevOpsActionService
+from app.services.devops_actions import DevOpsActionCatalog
 from app.prompts.chat import build_chat_prompt
 from app.prompts.dockerfile import (build_dockerfile_review_prompt, build_structured_dockerfile_analysis_prompt,)
 from app.prompts.kubernetes import (build_kubernetes_review_prompt, build_structured_kubernetes_analysis_prompt,)
@@ -304,3 +306,19 @@ async def restart_docker_container(
     return service.restart_docker_container(
         request.container_name
     )
+
+@router.get(
+    "/actions/available/{component}",
+    response_model=AvailableActionsResponse,
+)
+async def get_available_actions(
+    component: str,
+    current_user: User = Depends(get_current_user),
+):
+    actions = DevOpsActionCatalog.get_actions(component)
+
+    return AvailableActionsResponse(
+        component=component,
+        actions=actions,
+    )
+
