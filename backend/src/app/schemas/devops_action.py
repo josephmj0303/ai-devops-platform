@@ -10,3 +10,16 @@ class DevOpsActionResponse(BaseModel):
     target: str
     status: str
     message: str
+
+
+class AvailableAction(BaseModel):
+    action: str
+    name: str
+    description: str
+    target_type: str
+    enabled: bool
+
+
+class AvailableActionsResponse(BaseModel):
+    component: str
+    actions: list[AvailableAction]
