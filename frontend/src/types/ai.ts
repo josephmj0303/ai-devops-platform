@@ -111,3 +111,13 @@ export interface DevOpsActionResponse {
   status: string;
   message: string;
 }
+
+export interface DevOpsActionHistoryItem {
+  id: number;
+  analysis_id: number;
+  action: string;
+  target: string;
+  status: string;
+  message: string;
+  created_at: string;
+}
