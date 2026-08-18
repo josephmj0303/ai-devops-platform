@@ -29,3 +29,6 @@ htmlcov/
 
 # Logs
 *.log
+
+# Python build metadata
+*.egg-info/
