@@ -1,14 +1,12 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
 from app.db.base import Base
-
-if TYPE_CHECKING:
-    from uuid import UUID
 
 
 class DevOpsAction(Base):
@@ -20,7 +18,7 @@ class DevOpsAction(Base):
         index=True,
     )
 
-    user_id: Mapped["UUID"] = mapped_column(
+    user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
