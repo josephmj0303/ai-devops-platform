@@ -6,6 +6,9 @@ import {
   analyzeKubernetes, 
   analyzeTerraform, 
   getAnalysisHistory, 
+  getDockerContainers,
+  getAvailableActions,
+  restartDockerContainer,
 } from "../api/ai"; 
  
 import type { 
@@ -410,6 +413,103 @@ function HistoryDetails({
   onClose, 
 }: HistoryDetailsProps) { 
   const result = analysis.result; 
+  const [containers, setContainers] = useState<
+    {
+      name: string;
+      status: string;
+      image: string;
+    }[]
+  >([]);
+
+  const [selectedContainer, setSelectedContainer] =
+    useState("");
+
+  const [actionLoading, setActionLoading] =
+    useState(false);
+
+  const [actionResult, setActionResult] =
+    useState("");
+
+  const [actionError, setActionError] =
+    useState("");
+
+  const [actionAvailable, setActionAvailable] =
+    useState(false);
+
+  useEffect(() => {
+    const loadActions = async () => {
+      if (result.component !== "Docker") {
+        return;
+      }
+
+      try {
+        const available =
+          await getAvailableActions("Docker");
+
+        const restartAvailable =
+          available.actions.some(
+            (action) =>
+              action.action === "docker_restart" &&
+              action.enabled
+          );
+
+        setActionAvailable(restartAvailable);
+
+        if (restartAvailable) {
+          const data =
+            await getDockerContainers();
+
+          setContainers(data);
+
+          if (data.length > 0) {
+            setSelectedContainer(data[0].name);
+          }
+        }
+      } catch (err) {
+        console.error(
+          "Failed to load DevOps actions:",
+          err
+        );
+      }
+    };
+
+    loadActions();
+  }, [result.component]);
+  
+    const handleRestartContainer = async () => {
+    if (!selectedContainer) {
+      setActionError("Please select a container.");
+      return;
+    }
+
+    setActionLoading(true);
+    setActionResult("");
+    setActionError("");
+
+    try {
+      const response =
+        await restartDockerContainer(
+          selectedContainer
+        );
+
+      if (response.status === "completed") {
+        setActionResult(response.message);
+      } else {
+        setActionError(response.message);
+      }
+    } catch (err) {
+      console.error(
+        "Docker action failed:",
+        err
+      );
+
+      setActionError(
+        "Failed to execute Docker action."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  };
  
   return ( 
     <div className="ai-history-details"> 
@@ -516,6 +616,88 @@ function HistoryDetails({
           )} 
         </ul> 
       </div> 
+      
+      {result.component === "Docker" && (
+        <div className="ai-result-section ai-devops-actions">
+          <h3>DevOps Actions</h3>
+
+          {!actionAvailable ? (
+            <p>
+              No executable Docker actions are currently
+              available.
+            </p>
+          ) : (
+            <>
+              <div className="ai-action-card">
+                <div className="ai-action-info">
+                  <strong>
+                    Restart Docker Container
+                  </strong>
+
+                  <p>
+                    Restart a selected running Docker
+                    container.
+                  </p>
+                </div>
+
+                <div className="ai-action-controls">
+                  <label htmlFor="docker-container">
+                    Target Container
+                  </label>
+
+                  <select
+                    id="docker-container"
+                    value={selectedContainer}
+                    onChange={(event) =>
+                      setSelectedContainer(
+                        event.target.value
+                      )
+                    }
+                    disabled={actionLoading}
+                  >
+                    {containers.map((container) => (
+                      <option
+                        key={container.name}
+                        value={container.name}
+                      >
+                        {container.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    className="ai-action-button"
+                    onClick={
+                      handleRestartContainer
+                    }
+                    disabled={
+                      actionLoading ||
+                      !selectedContainer
+                    }
+                  >
+                    {actionLoading
+                      ? "Executing..."
+                      : "Execute Action"}
+                  </button>
+                </div>
+              </div>
+
+              {actionResult && (
+                <div className="ai-action-success">
+                  {actionResult}
+                </div>
+              )}
+
+              {actionError && (
+                <div className="ai-action-error">
+                  {actionError}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div> 
   ); 
 } 
