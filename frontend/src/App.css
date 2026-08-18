@@ -594,14 +594,20 @@
 }
 
 .ai-action-controls select {
-  min-width: 220px;
+  min-width: 280px;
   padding: 8px 10px;
-  border: 1px solid #4b5563;
+  border: 1px solid #9ca3af;
   border-radius: 6px;
-  background: #111827;
-  color: inherit;
+  background: #ffffff;
+  color: #111827;
+  font-size: 16px;
+  cursor: pointer;
 }
 
+.ai-action-controls select option {
+  background: #ffffff;
+  color: #111827;
+}
 .ai-action-button {
   padding: 8px 14px;
   border: none;
