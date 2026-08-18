@@ -11,6 +11,9 @@ import type {
   KubernetesAnalysisResponse,
   TerraformAnalysisResponse,
   AIAnalysisHistoryItem,
+  DockerContainer,
+  AvailableActionsResponse,
+  DevOpsActionResponse,
 } from "../types/ai";
 
 export const chat = async (
@@ -144,6 +147,39 @@ export const getAnalysisHistory = async (): Promise<
 > => {
   const response = await api.get<AIAnalysisHistoryItem[]>(
     "/ai/history"
+  );
+
+  return response.data;
+};
+
+export const getDockerContainers = async (): Promise<
+  DockerContainer[]
+> => {
+  const response = await api.get<DockerContainer[]>(
+    "/ai/actions/docker/containers"
+  );
+
+  return response.data;
+};
+
+export const getAvailableActions = async (
+  component: string
+): Promise<AvailableActionsResponse> => {
+  const response = await api.get<AvailableActionsResponse>(
+    `/ai/actions/available/${component}`
+  );
+
+  return response.data;
+};
+
+export const restartDockerContainer = async (
+  containerName: string
+): Promise<DevOpsActionResponse> => {
+  const response = await api.post<DevOpsActionResponse>(
+    "/ai/actions/docker/restart",
+    {
+      container_name: containerName,
+    }
   );
 
   return response.data;
