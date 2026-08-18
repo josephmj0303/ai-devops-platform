@@ -14,6 +14,7 @@ import type {
   DockerContainer,
   AvailableActionsResponse,
   DevOpsActionResponse,
+  DevOpsActionHistoryItem,
 } from "../types/ai";
 
 export const chat = async (
@@ -186,3 +187,14 @@ export const restartDockerContainer = async (
 
   return response.data;
 };
+
+export const getActionHistory = async (
+  analysisId: number
+): Promise<DevOpsActionHistoryItem[]> => {
+  const response = await api.get<DevOpsActionHistoryItem[]>(
+    `/ai/actions/history/${analysisId}`
+  );
+
+  return response.data;
+};
+
