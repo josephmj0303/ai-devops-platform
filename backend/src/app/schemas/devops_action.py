@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 class DockerRestartRequest(BaseModel):
@@ -25,3 +26,12 @@ class DockerContainer(BaseModel):
     name: str
     status: str
     image: str
+
+class DevOpsActionHistoryItem(BaseModel):
+    id: int
+    analysis_id: int
+    action: str
+    target: str
+    status: str
+    message: str
+    created_at: datetime
