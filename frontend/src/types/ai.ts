@@ -85,3 +85,29 @@ export type AnalysisType =
   | "dockerfile"
   | "kubernetes"
   | "terraform";
+
+export interface DockerContainer {
+  name: string;
+  status: string;
+  image: string;
+}
+
+export interface AvailableAction {
+  action: string;
+  name: string;
+  description: string;
+  target_type: string;
+  enabled: boolean;
+}
+
+export interface AvailableActionsResponse {
+  component: string;
+  actions: AvailableAction[];
+}
+
+export interface DevOpsActionResponse {
+  action: string;
+  target: string;
+  status: string;
+  message: string;
+}
