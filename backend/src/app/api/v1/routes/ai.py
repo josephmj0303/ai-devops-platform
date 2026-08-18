@@ -21,6 +21,7 @@ from app.schemas.devops_action import (
     DockerRestartRequest,
     DevOpsActionResponse,
     AvailableActionsResponse,
+    DockerContainer,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -322,3 +323,13 @@ async def get_available_actions(
         actions=actions,
     )
 
+@router.get(
+    "/actions/docker/containers",
+    response_model=list[DockerContainer],
+)
+async def get_docker_containers(
+    current_user: User = Depends(get_current_user),
+):
+    service = DevOpsActionService()
+
+    return service.list_docker_containers()
