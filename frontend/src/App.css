@@ -553,3 +553,87 @@
   font-size: 16px;
   line-height: 1.6;
 }
+
+/* ---------------------------------------------------------
+   DevOps Actions
+   --------------------------------------------------------- */
+
+.ai-devops-actions {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #374151;
+}
+
+.ai-action-card {
+  margin-top: 12px;
+  padding: 18px;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ai-action-info strong {
+  font-size: 16px;
+}
+
+.ai-action-info p {
+  margin: 6px 0 16px;
+  color: #9ca3af;
+}
+
+.ai-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-action-controls label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ai-action-controls select {
+  min-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid #4b5563;
+  border-radius: 6px;
+  background: #111827;
+  color: inherit;
+}
+
+.ai-action-button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-action-button:hover {
+  background: #1d4ed8;
+}
+
+.ai-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-action-success {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ai-action-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #991b1b;
+}
