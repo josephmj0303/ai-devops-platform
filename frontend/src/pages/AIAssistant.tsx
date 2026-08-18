@@ -489,6 +489,7 @@ function HistoryDetails({
     try {
       const response =
         await restartDockerContainer(
+          analysis.id,      
           selectedContainer
         );
 
