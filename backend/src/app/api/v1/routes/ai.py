@@ -22,6 +22,7 @@ from app.schemas.devops_action import (
     DevOpsActionResponse,
     AvailableActionsResponse,
     DockerContainer,
+    DevOpsActionHistoryItem,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -337,3 +338,32 @@ async def get_docker_containers(
     service = DevOpsActionService()
 
     return service.list_docker_containers()
+
+@router.get(
+    "/actions/history/{analysis_id}",
+    response_model=list[DevOpsActionHistoryItem],
+)
+async def get_action_history(
+    analysis_id: int,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    repository = DevOpsActionRepository(session)
+
+    actions = await repository.list_by_analysis(
+        analysis_id
+    )
+
+    return [
+        DevOpsActionHistoryItem(
+            id=action.id,
+            analysis_id=action.analysis_id,
+            action=action.action,
+            target=action.target,
+            status=action.status,
+            message=action.message,
+            created_at=action.created_at,
+        )
+        for action in actions
+        if action.user_id == current_user.id
+    ]
