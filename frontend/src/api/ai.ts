@@ -173,11 +173,13 @@ export const getAvailableActions = async (
 };
 
 export const restartDockerContainer = async (
+  analysisId: number,
   containerName: string
 ): Promise<DevOpsActionResponse> => {
   const response = await api.post<DevOpsActionResponse>(
     "/ai/actions/docker/restart",
     {
+      analysis_id: analysisId,
       container_name: containerName,
     }
   );
