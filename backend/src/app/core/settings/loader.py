@@ -8,7 +8,7 @@ from app.core.settings.database import DatabaseSettings
 from app.core.settings.observability import ObservabilitySettings
 from app.core.settings.redis import RedisSettings
 from app.core.settings.security import SecuritySettings
-
+from app.core.settings.kubernetes import KubernetesSettings
 
 class Settings:
 
@@ -29,6 +29,8 @@ class Settings:
         self.observability = ObservabilitySettings()
 
         self.cors = CORSSettings()
+
+        self.kubernetes = KubernetesSettings()
 
 
 @lru_cache
