@@ -23,6 +23,7 @@ from app.schemas.devops_action import (
     AvailableActionsResponse,
     DockerContainer,
     DevOpsActionHistoryItem,
+    KubernetesDeploymentRestartRequest,
 )
 from app.security.dependencies import get_current_user
 from app.services.ai import AIService
@@ -311,6 +312,25 @@ async def restart_docker_container(
         user_id=current_user.id,
         analysis_id=request.analysis_id,
         container_name=request.container_name,
+    )
+
+@router.post(
+    "/actions/kubernetes/restart",
+    response_model=DevOpsActionResponse,
+)
+async def restart_kubernetes_deployment(
+    request: KubernetesDeploymentRestartRequest,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    repository = DevOpsActionRepository(session)
+    service = DevOpsActionService(repository)
+
+    return await service.restart_kubernetes_deployment(
+        user_id=current_user.id,
+        analysis_id=request.analysis_id,
+        namespace=request.namespace,
+        deployment_name=request.deployment_name,
     )
 
 @router.get(
