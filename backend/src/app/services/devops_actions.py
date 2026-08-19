@@ -12,7 +12,15 @@ class DevOpsActionCatalog:
                 enabled=True,
             )
         ],
-        "Kubernetes": [],
+        "Kubernetes": [
+            AvailableAction(
+                action="kubernetes_restart_deployment",
+                name="Restart Kubernetes Deployment",
+                description="Restart a selected Kubernetes deployment.",
+                target_type="deployment",
+                enabled=True,
+            )
+        ],
         "Terraform": [],
         "PostgreSQL": [],
     }
