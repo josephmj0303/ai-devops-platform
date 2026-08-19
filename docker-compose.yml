@@ -43,8 +43,18 @@ services:
       - "8000:8000"
 
     volumes:
+      - ./backend/src:/app/src
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/vagrant/.kube/ai-devops-platform.config:/app/.kube/config:ro
+
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
