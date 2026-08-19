@@ -68,6 +68,45 @@ class KubernetesService:
             for deployment in deployments.items
         ]
 
+    def restart_deployment(
+        self,
+        *,
+        namespace: str,
+        deployment_name: str,
+    ) -> dict:
+        if not self.enabled:
+            raise RuntimeError("Kubernetes integration is disabled")
+
+        deployment = self.apps_api.read_namespaced_deployment(
+            name=deployment_name,
+            namespace=namespace,
+        )
+
+        annotations = (
+            deployment.spec.template.metadata.annotations
+            or {}
+        )
+
+        from datetime import datetime, timezone
+
+        annotations["ai-devops-platform/restarted-at"] = (
+            datetime.now(timezone.utc).isoformat()
+        )
+
+        deployment.spec.template.metadata.annotations = annotations
+
+        self.apps_api.patch_namespaced_deployment(
+            name=deployment_name,
+            namespace=namespace,
+            body=deployment,
+        )
+
+        return {
+            "name": deployment_name,
+            "namespace": namespace,
+            "status": "restarted",
+        }
+
     def get_cluster_summary(self) -> dict:
         nodes = self.get_nodes()
         pods = self.get_pods()
