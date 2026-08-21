@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.models.user import User
-from app.schemas.kubernetes import KubernetesClusterSummary
+from app.schemas.kubernetes import (KubernetesClusterSummary, KubernetesDeployment,)
 from app.security.dependencies import get_current_user
 from app.services.kubernetes import KubernetesService
 
@@ -22,3 +22,14 @@ async def get_cluster_summary(
     service = KubernetesService()
 
     return service.get_cluster_summary()
+
+@router.get(
+    "/deployments",
+    response_model=list[KubernetesDeployment],
+)
+async def get_deployments(
+    current_user: User = Depends(get_current_user),
+):
+    service = KubernetesService()
+
+    return service.get_deployments()
