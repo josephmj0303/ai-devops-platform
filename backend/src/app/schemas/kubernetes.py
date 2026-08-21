@@ -17,6 +17,14 @@ class KubernetesDeploymentSummary(BaseModel):
     total: int
 
 
+class KubernetesDeployment(BaseModel):
+    name: str
+    namespace: str
+    desired_replicas: int
+    ready_replicas: int
+    available_replicas: int
+
+
 class KubernetesNodeSummary(BaseModel):
     total: int
     ready: int
