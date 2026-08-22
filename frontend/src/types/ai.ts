@@ -92,6 +92,14 @@ export interface DockerContainer {
   image: string;
 }
 
+export interface KubernetesDeployment {
+  name: string;
+  namespace: string;
+  desired_replicas: number;
+  ready_replicas: number;
+  available_replicas: number;
+}
+
 export interface AvailableAction {
   action: string;
   name: string;
