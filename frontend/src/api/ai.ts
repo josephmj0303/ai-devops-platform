@@ -199,6 +199,23 @@ export const restartDockerContainer = async (
   return response.data;
 };
 
+export const restartKubernetesDeployment = async (
+  analysisId: number,
+  namespace: string,
+  deploymentName: string
+): Promise<DevOpsActionResponse> => {
+  const response = await api.post<DevOpsActionResponse>(
+    "/ai/actions/kubernetes/restart",
+    {
+      analysis_id: analysisId,
+      namespace,
+      deployment_name: deploymentName,
+    }
+  );
+
+  return response.data;
+};
+
 export const getActionHistory = async (
   analysisId: number
 ): Promise<DevOpsActionHistoryItem[]> => {
