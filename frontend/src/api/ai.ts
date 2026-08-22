@@ -15,6 +15,7 @@ import type {
   AvailableActionsResponse,
   DevOpsActionResponse,
   DevOpsActionHistoryItem,
+  KubernetesDeployment,
 } from "../types/ai";
 
 export const chat = async (
@@ -158,6 +159,16 @@ export const getDockerContainers = async (): Promise<
 > => {
   const response = await api.get<DockerContainer[]>(
     "/ai/actions/docker/containers"
+  );
+
+  return response.data;
+};
+
+export const getKubernetesDeployments = async (): Promise<
+  KubernetesDeployment[]
+> => {
+  const response = await api.get<KubernetesDeployment[]>(
+    "/kubernetes/deployments"
   );
 
   return response.data;
