@@ -7,8 +7,10 @@ import {
   analyzeTerraform,
   getAnalysisHistory,
   getDockerContainers,
+  getKubernetesDeployments,
   getAvailableActions,
   restartDockerContainer,
+  restartKubernetesDeployment,
   getActionHistory,
 } from "../api/ai";
 
@@ -452,6 +454,19 @@ function HistoryDetails({
       }[]
     >([]);
 
+  const [deployments, setDeployments] = useState<
+    {
+      name: string;
+      namespace: string;
+      desired_replicas: number;
+      ready_replicas: number;
+      available_replicas: number;
+    }[]
+  >([]);
+
+  const [selectedDeployment, setSelectedDeployment] =
+    useState("");
+
   const [selectedContainer, setSelectedContainer] =
     useState("");
 
@@ -471,40 +486,66 @@ function HistoryDetails({
     useState<DevOpsActionHistoryItem[]>([]);
 
   /*
-   * Load available Docker actions and
-   * current Docker containers.
+   * Load available DevOps actions and
+   * current targets for the selected component.
    */
   useEffect(() => {
     const loadActions = async () => {
-      if (result.component !== "Docker") {
-        return;
-      }
-
       try {
-        const available =
-          await getAvailableActions("Docker");
+        if (result.component === "Docker") {
+          const available =
+            await getAvailableActions("Docker");
 
-        const restartAvailable =
-          available.actions.some(
-            (action) =>
-              action.action === "docker_restart" &&
-              action.enabled
-          );
-
-        setActionAvailable(
-          restartAvailable
-        );
-
-        if (restartAvailable) {
-          const data =
-            await getDockerContainers();
-
-          setContainers(data);
-
-          if (data.length > 0) {
-            setSelectedContainer(
-              data[0].name
+          const restartAvailable =
+            available.actions.some(
+              (action) =>
+                action.action === "docker_restart" &&
+                action.enabled
             );
+
+          setActionAvailable(restartAvailable);
+
+          if (restartAvailable) {
+            const data =
+              await getDockerContainers();
+
+            setContainers(data);
+
+            if (data.length > 0) {
+              setSelectedContainer(
+                data[0].name
+              );
+            }
+          }
+
+          return;
+        }
+
+        if (result.component === "Kubernetes") {
+          const available =
+            await getAvailableActions("Kubernetes");
+
+          const restartAvailable =
+            available.actions.some(
+              (action) =>
+                action.action ===
+                  "kubernetes_restart_deployment" &&
+                action.enabled
+            );
+
+          setActionAvailable(restartAvailable);
+
+          if (restartAvailable) {
+            const data =
+              await getKubernetesDeployments();
+
+            setDeployments(data);
+
+            if (data.length > 0) {
+              setSelectedDeployment(
+                `${data[0].namespace}/${data[0].name}`
+              );
+            }
           }
         }
       } catch (err) {
@@ -624,6 +665,71 @@ function HistoryDetails({
         setActionLoading(false);
       }
     };
+
+  const handleRestartDeployment = async () => {
+    if (!selectedDeployment) {
+      setActionError(
+        "Please select a deployment."
+      );
+      return;
+    }
+
+    const [namespace, deploymentName] =
+      selectedDeployment.split("/");
+
+    setActionLoading(true);
+    setActionResult("");
+    setActionError("");
+
+    try {
+      const response =
+        await restartKubernetesDeployment(
+          analysis.id,
+          namespace,
+          deploymentName
+        );
+
+      if (response.status === "completed") {
+        setActionResult(response.message);
+      } else {
+        setActionError(response.message);
+      }
+
+      const updatedHistory =
+        await getActionHistory(
+          analysis.id
+        );
+
+      setActionHistory(updatedHistory);
+    } catch (err) {
+      console.error(
+        "Kubernetes action failed:",
+        err
+      );
+
+      setActionError(
+        "Failed to execute Kubernetes action."
+      );
+
+      try {
+        const updatedHistory =
+          await getActionHistory(
+            analysis.id
+          );
+
+        setActionHistory(
+          updatedHistory
+        );
+      } catch (historyError) {
+        console.error(
+          "Failed to refresh action history:",
+          historyError
+        );
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <div className="ai-history-details">
@@ -797,6 +903,91 @@ function HistoryDetails({
                     disabled={
                       actionLoading ||
                       !selectedContainer
+                    }
+                  >
+                    {actionLoading
+                      ? "Executing..."
+                      : "Execute Action"}
+                  </button>
+                </div>
+              </div>
+
+              {actionResult && (
+                <div className="ai-action-success">
+                  {actionResult}
+                </div>
+              )}
+
+              {actionError && (
+                <div className="ai-action-error">
+                  {actionError}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {result.component === "Kubernetes" && (
+        <div className="ai-result-section ai-devops-actions">
+          <h3>DevOps Actions</h3>
+
+          {!actionAvailable ? (
+            <p>
+              No executable Kubernetes actions are
+              currently available.
+            </p>
+          ) : (
+            <>
+              <div className="ai-action-card">
+                <div className="ai-action-info">
+                  <strong>
+                    Restart Kubernetes Deployment
+                  </strong>
+
+                  <p>
+                    Restart a selected Kubernetes
+                    deployment.
+                  </p>
+                </div>
+
+                <div className="ai-action-controls">
+                  <label htmlFor="kubernetes-deployment">
+                    Target Deployment
+                  </label>
+
+                  <select
+                    id="kubernetes-deployment"
+                    value={selectedDeployment}
+                    onChange={(event) =>
+                      setSelectedDeployment(
+                        event.target.value
+                      )
+                    }
+                    disabled={actionLoading}
+                  >
+                    {deployments.map(
+                      (deployment) => (
+                        <option
+                          key={`${deployment.namespace}/${deployment.name}`}
+                          value={`${deployment.namespace}/${deployment.name}`}
+                        >
+                          {deployment.namespace}/
+                          {deployment.name}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  <button
+                    type="button"
+                    className="ai-action-button"
+                    onClick={
+                      handleRestartDeployment
+                    }
+                    disabled={
+                      actionLoading ||
+                      !selectedDeployment
                     }
                   >
                     {actionLoading
