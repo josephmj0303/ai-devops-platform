@@ -129,3 +129,12 @@ export interface DevOpsActionHistoryItem {
   message: string;
   created_at: string;
 }
+
+export interface AIActionInterpretResponse {
+  is_action: boolean;
+  action: string | null;
+  target: string | null;
+  namespace: string | null;
+  parameters: Record<string, unknown>;
+  reason: string;
+}
