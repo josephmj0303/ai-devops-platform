@@ -12,6 +12,7 @@ import {
   restartDockerContainer,
   restartKubernetesDeployment,
   getActionHistory,
+  interpretAIAction,
 } from "../api/ai";
 
 import type {
@@ -23,6 +24,7 @@ import type {
   TerraformAnalysisResponse,
   LogAnalysisResponse,
   DevOpsActionHistoryItem,
+  AIActionInterpretResponse,
 } from "../types/ai";
 
 type AnalysisResult =
@@ -89,6 +91,17 @@ function AIAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [actionPrompt, setActionPrompt] = useState("");
+
+  const [actionIntent, setActionIntent] =
+    useState<AIActionInterpretResponse | null>(null);
+
+  const [actionInterpretLoading, setActionInterpretLoading] =
+    useState(false);
+
+  const [actionInterpretError, setActionInterpretError] =
+    useState("");
+  
   const [history, setHistory] = useState<
     AIAnalysisHistoryItem[]
   >([]);
@@ -170,6 +183,38 @@ function AIAssistant() {
     setError("");
   };
 
+  const handleInterpretAction = async () => {
+    if (!actionPrompt.trim()) {
+      setActionInterpretError(
+        "Please describe the DevOps action you want AI to perform."
+      );
+      return;
+    }
+
+    setActionInterpretLoading(true);
+    setActionInterpretError("");
+    setActionIntent(null);
+
+    try {
+      const response = await interpretAIAction(
+        actionPrompt
+      );
+
+      setActionIntent(response);
+    } catch (err) {
+      console.error(
+        "AI action interpretation failed:",
+        err
+      );
+
+      setActionInterpretError(
+        "Failed to interpret the DevOps action."
+      );
+    } finally {
+      setActionInterpretLoading(false);
+    }
+  };
+
   return (
     <div className="ai-page">
       <div className="ai-header">
@@ -231,6 +276,82 @@ function AIAssistant() {
             rows={16}
           />
         </div>
+
+        <div className="ai-result-section ai-devops-actions">
+          <h2>AI DevOps Actions</h2>
+
+          <p>
+            Describe a DevOps action in natural language.
+            AI will identify the supported action before
+            execution.
+          </p>
+
+          <textarea
+            value={actionPrompt}
+            onChange={(event) =>
+              setActionPrompt(event.target.value)
+            }
+            placeholder="Example: Restart the ingress-nginx-controller deployment in the ingress-nginx namespace"
+            rows={4}
+            disabled={actionInterpretLoading}
+          />
+
+          {actionInterpretError && (
+            <div className="ai-action-error">
+              {actionInterpretError}
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="ai-action-button"
+            onClick={handleInterpretAction}
+            disabled={actionInterpretLoading}
+          >
+            {actionInterpretLoading
+              ? "Interpreting..."
+              : "Interpret with AI"}
+          </button>
+
+          {actionIntent && (
+            <div className="ai-action-card">
+              <div className="ai-action-info">
+                <strong>
+                  AI Action Preview
+                </strong>
+
+                <p>
+                  {actionIntent.reason}
+                </p>
+
+                {actionIntent.is_action ? (
+                  <>
+                    <p>
+                      <strong>Action:</strong>{" "}
+                      {actionIntent.action}
+                    </p>
+
+                    <p>
+                      <strong>Target:</strong>{" "}
+                      {actionIntent.target}
+                    </p>
+
+                    {actionIntent.namespace && (
+                      <p>
+                        <strong>Namespace:</strong>{" "}
+                        {actionIntent.namespace}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p>
+                    No executable DevOps action was identified.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div> 
 
         {error && (
           <div className="ai-error">
