@@ -73,7 +73,11 @@ class TerraformAnalysisResponse(BaseModel):
     findings: list[str] = Field(min_length=1)
     recommended_actions: list[str] = Field(min_length=1)
 
-class AIActionIntent(BaseModel):
+class AIActionInterpretRequest(BaseModel):
+    prompt: str = Field(min_length=1)
+
+
+class AIActionInterpretResponse(BaseModel):
     is_action: bool
     action: str | None = None
     target: str | None = None
