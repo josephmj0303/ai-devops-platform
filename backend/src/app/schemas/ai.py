@@ -1,3 +1,4 @@
+
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -71,3 +72,11 @@ class TerraformAnalysisResponse(BaseModel):
     summary: str
     findings: list[str] = Field(min_length=1)
     recommended_actions: list[str] = Field(min_length=1)
+
+class AIActionIntent(BaseModel):
+    is_action: bool
+    action: str | None = None
+    target: str | None = None
+    namespace: str | None = None
+    parameters: dict = Field(default_factory=dict)
+    reason: str
