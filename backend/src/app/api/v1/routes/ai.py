@@ -16,6 +16,8 @@ from app.schemas.ai import (
     DockerAnalysisResponse,
     KubernetesAnalysisResponse,
     TerraformAnalysisResponse,
+    AIActionInterpretRequest,
+    AIActionInterpretResponse,
 )
 from app.schemas.devops_action import (
     DockerRestartRequest,
@@ -29,17 +31,18 @@ from app.security.dependencies import get_current_user
 from app.services.ai import AIService
 from app.services.devops_action import DevOpsActionService
 from app.services.devops_actions import DevOpsActionCatalog
+from app.services.ai_analysis import AIAnalysisService
 from app.prompts.chat import build_chat_prompt
 from app.prompts.dockerfile import (build_dockerfile_review_prompt, build_structured_dockerfile_analysis_prompt,)
 from app.prompts.kubernetes import (build_kubernetes_review_prompt, build_structured_kubernetes_analysis_prompt,)
 from app.prompts.terraform import (build_terraform_review_prompt, build_structured_terraform_analysis_prompt,)
 from app.prompts.logs import (build_log_analysis_prompt, build_structured_log_analysis_prompt,)
+from app.prompts.actions import build_action_intent_prompt
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.repositories.devops_action import DevOpsActionRepository
 from app.repositories.ai_analysis import AIAnalysisRepository
 from app.schemas.ai_analysis import AIAnalysisResponse
-from app.services.ai_analysis import AIAnalysisService
 
 router = APIRouter(
     prefix="/ai",
@@ -295,6 +298,24 @@ async def get_analysis_history(
     return await service.list_user_analyses(
         current_user.id
     )
+
+@router.post(
+    "/actions/interpret",
+    response_model=AIActionInterpretResponse,
+)
+async def interpret_action(
+    request: AIActionInterpretRequest,
+    current_user: User = Depends(get_current_user),
+):
+    service = AIService()
+
+    prompt = build_action_intent_prompt(request.prompt)
+
+    intent = await service.interpret_action(
+        prompt=prompt,
+    )
+
+    return AIActionInterpretResponse(**intent)
 
 @router.post(
     "/actions/docker/restart",
