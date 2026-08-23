@@ -16,6 +16,7 @@ import type {
   DevOpsActionResponse,
   DevOpsActionHistoryItem,
   KubernetesDeployment,
+  AIActionInterpretResponse,
 } from "../types/ai";
 
 export const chat = async (
@@ -226,3 +227,16 @@ export const getActionHistory = async (
   return response.data;
 };
 
+export const interpretAIAction = async (
+  prompt: string
+): Promise<AIActionInterpretResponse> => {
+  const response =
+    await api.post<AIActionInterpretResponse>(
+      "/ai/actions/interpret",
+      {
+        prompt,
+      }
+    );
+
+  return response.data;
+};
