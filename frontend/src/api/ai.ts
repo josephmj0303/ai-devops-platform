@@ -240,3 +240,15 @@ export const interpretAIAction = async (
 
   return response.data;
 };
+
+export const executeAIAction = async (
+  action: AIActionInterpretResponse
+): Promise<DevOpsActionResponse> => {
+  const response =
+    await api.post<DevOpsActionResponse>(
+      "/ai/actions/execute",
+      action
+    );
+
+  return response.data;
+};
