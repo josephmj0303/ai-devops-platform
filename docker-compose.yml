@@ -66,5 +66,15 @@ services:
       - postgres
       - redis
 
+  frontend:
+    build:
+      context: ./frontend
+    image: ai-devops-frontend:dev
+    container_name: ai-devops-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres_data:
