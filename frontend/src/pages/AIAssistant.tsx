@@ -13,6 +13,7 @@ import {
   restartKubernetesDeployment,
   getActionHistory,
   interpretAIAction,
+  executeAIAction,
 } from "../api/ai";
 
 import type {
@@ -215,6 +216,42 @@ function AIAssistant() {
     }
   };
 
+  const handleExecuteAIAction = async () => {
+    if (!actionIntent?.is_action) {
+      return;
+    }
+
+    setActionInterpretLoading(true);
+    setActionInterpretError("");
+
+    try {
+      const response = await executeAIAction(
+        actionIntent
+      );
+
+      if (response.status === "completed") {
+        setActionInterpretError("");
+        setActionIntent({
+          ...actionIntent,
+          reason: response.message,
+        });
+      } else {
+        setActionInterpretError(response.message);
+      }
+    } catch (err) {
+      console.error(
+        "AI action execution failed:",
+        err
+      );
+
+      setActionInterpretError(
+        "Failed to execute the DevOps action."
+      );
+    } finally {
+      setActionInterpretLoading(false);
+    }
+  };
+
   return (
     <div className="ai-page">
       <div className="ai-header">
@@ -342,6 +379,16 @@ function AIAssistant() {
                         {actionIntent.namespace}
                       </p>
                     )}
+                    <button
+                      type="button"
+                      className="ai-action-button"
+                      onClick={handleExecuteAIAction}
+                      disabled={actionInterpretLoading}
+                    >
+                      {actionInterpretLoading
+                        ? "Executing..."
+                        : "Execute Action"}
+                    </button>
                   </>
                 ) : (
                   <p>
