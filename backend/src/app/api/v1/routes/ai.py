@@ -318,6 +318,97 @@ async def interpret_action(
     return AIActionInterpretResponse(**intent)
 
 @router.post(
+    "/actions/execute",
+    response_model=DevOpsActionResponse,
+)
+async def execute_ai_action(
+    request: AIActionInterpretResponse,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not request.is_action:
+        return DevOpsActionResponse(
+            action="none",
+            target="",
+            status="failed",
+            message="No executable DevOps action was identified.",
+        )
+
+    if not request.action:
+        return DevOpsActionResponse(
+            action="none",
+            target="",
+            status="failed",
+            message="AI did not identify a valid action.",
+        )
+
+    if not request.target:
+        return DevOpsActionResponse(
+            action=request.action,
+            target="",
+            status="failed",
+            message="AI did not identify a target.",
+        )
+
+    if request.action == "kubernetes_restart_deployment":
+        if not request.namespace:
+            return DevOpsActionResponse(
+                action=request.action,
+                target=request.target,
+                status="failed",
+                message="Kubernetes namespace is required.",
+            )
+
+    if request.action not in {
+        "kubernetes_restart_deployment",
+        "docker_restart",
+    }:
+        return DevOpsActionResponse(
+            action=request.action,
+            target=request.target,
+            status="failed",
+            message=f"Unsupported DevOps action: {request.action}",
+        )
+
+    analysis_repository = AIAnalysisRepository(session)
+    analysis_service = AIAnalysisService(
+        analysis_repository
+    )
+
+    analysis = await analysis_service.create_analysis(
+        user_id=current_user.id,
+        analysis_type="ai_action",
+        input_text=request.reason,
+        result={
+            "is_action": request.is_action,
+            "action": request.action,
+            "target": request.target,
+            "namespace": request.namespace,
+            "parameters": request.parameters,
+            "reason": request.reason,
+        },
+    )
+
+    action_repository = DevOpsActionRepository(session)
+    action_service = DevOpsActionService(
+        action_repository
+    )
+
+    if request.action == "kubernetes_restart_deployment":
+        return await action_service.restart_kubernetes_deployment(
+            user_id=current_user.id,
+            analysis_id=analysis.id,
+            namespace=request.namespace,
+            deployment_name=request.target,
+        )
+
+    return await action_service.restart_docker_container(
+        user_id=current_user.id,
+        analysis_id=analysis.id,
+        container_name=request.target,
+    )
+
+@router.post(
     "/actions/docker/restart",
     response_model=DevOpsActionResponse,
 )
