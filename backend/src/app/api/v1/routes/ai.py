@@ -380,12 +380,21 @@ async def execute_ai_action(
         analysis_type="ai_action",
         input_text=request.reason,
         result={
-            "is_action": request.is_action,
-            "action": request.action,
-            "target": request.target,
-            "namespace": request.namespace,
-            "parameters": request.parameters,
-            "reason": request.reason,
+            "severity": "low",
+            "component": "DevOps Action",
+            "summary": f"AI requested {request.action}",
+            "findings": [
+                request.reason,
+            ],
+            "recommended_actions": [
+                f"Execute {request.action} against {request.target}",
+            ],
+           "is_action": request.is_action,
+           "action": request.action,
+           "target": request.target,
+           "namespace": request.namespace,
+           "parameters": request.parameters,
+           "reason": request.reason,
         },
     )
 
