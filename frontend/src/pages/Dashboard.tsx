@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { getProjects } from "../api/projects";
 import type { Project } from "../types/project";
 
+const AI_TOOL_COUNT = 4;
+
 export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,11 +64,11 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-lg shadow p-6">
           <p className="text-gray-500">
-            AI Tools
+            AI Analysis Tools
           </p>
 
           <p className="text-3xl font-bold mt-2">
-            5
+            {AI_TOOL_COUNT}
           </p>
         </div>
 
