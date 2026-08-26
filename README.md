@@ -336,42 +336,35 @@ Expected host ports:
 The repository intentionally contains only the components used by the current implementation.
 ```
 ai-devops-platform/
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── PULL_REQUEST_TEMPLATE/
-│   ├── codeql/
-│   ├── dependabot/
-│   └── workflows/
+├── .gitignore
+├── .env.example
+├── LICENSE
+├── README.md
+├── docker-compose.yml
 │
 ├── backend/
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── pyproject.toml
 │   ├── alembic/
 │   ├── migrations/
 │   ├── scripts/
 │   ├── src/
-│   ├── tests/
-│   ├── Dockerfile
-│   ├── pyproject.toml
-│   └── README.md
-│
-├── docs/
-│   ├── ai-workflows.md
-│   ├── architecture.md
-│   ├── demo.md
-│   ├── devops-actions.md
-│   └── setup.md
+│   └── tests/
 │
 ├── frontend/
-│   ├── public/
-│   ├── src/
 │   ├── Dockerfile
+│   ├── README.md
 │   ├── package.json
-│   └── README.md
+│   ├── public/
+│   └── src/
 │
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-├── LICENSE
-└── README.md
+└── docs/
+    ├── architecture.md
+    ├── setup.md
+    ├── ai-workflows.md
+    ├── devops-actions.md
+    └── demo.md
 ```
 The repository was deliberately cleaned up during the final project phase to remove unused initial scaffolding and empty infrastructure placeholders.
 
