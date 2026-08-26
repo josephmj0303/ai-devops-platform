@@ -539,8 +539,7 @@ Navigate to the AI Assistant after authentication.
 
 Example:
 ```
-Restart the ingress-nginx-controller deployment
-in the ingress-nginx namespace.
+Restart the ingress-nginx-controller deployment in the ingress-nginx namespace.
 ```
 #### Step 6 — Interpret
 ```
