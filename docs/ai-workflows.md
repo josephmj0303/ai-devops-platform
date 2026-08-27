@@ -97,40 +97,7 @@ The frontend communicates with the backend rather than communicating directly wi
 
 This keeps provider-specific behavior inside the backend.
 
-## 5. AI Chat
-
-The AI Assistant provides a general DevOps-oriented chat workflow.
-```
-User
- |
- | Natural-language question
- v
-React AI Assistant
- |
- | API request
- v
-FastAPI
- |
- v
-AI Service
- |
- v
-Ollama
- |
- v
-llama3.2:3b
- |
- v
-AI response
- |
- v
-React UI
-```
-This workflow is intended for general DevOps assistance and explanation.
-
-The model does not directly execute commands as part of ordinary chat.
-
-## 6. Dockerfile Analysis
+## 5. Dockerfile Analysis
 
 The platform can analyze Dockerfile content.
 
@@ -166,7 +133,7 @@ Typical areas of analysis can include:
 
 The AI provides recommendations; it does not automatically modify the Dockerfile.
 
-## 7. Kubernetes Analysis
+## 6. Kubernetes Analysis
 
 The platform provides an AI workflow for Kubernetes-related input.
 
@@ -203,7 +170,7 @@ Kubernetes Action
 ```
 The AI therefore acts as an analysis and interpretation layer rather than replacing the Kubernetes client.
 
-## 8. Terraform Analysis
+## 7. Terraform Analysis
 
 Terraform configuration can also be submitted for AI analysis.
 
@@ -229,7 +196,7 @@ It does not use Terraform to provision the AI DevOps Platform itself.
 
 No Terraform execution is triggered by the AI analysis workflow.
 
-## 9. Log Analysis
+## 8. Log Analysis
 
 The platform can analyze log content to assist with troubleshooting.
 ```
@@ -260,7 +227,7 @@ The AI can help identify:
 
 The workflow is intended as an operational troubleshooting assistant.
 
-## 10. AI Action Interpretation
+## 9. AI Action Interpretation
 
 One of the key capabilities of the platform is interpreting a natural-language DevOps request.
 
@@ -298,7 +265,7 @@ target
 namespace
 reason
 ```
-## 11. AI Interpretation Does Not Equal Execution
+## 10. AI Interpretation Does Not Equal Execution
 
 The platform deliberately separates AI interpretation from action execution.
 
@@ -334,7 +301,7 @@ This is an important architectural boundary.
 
 The language model determines the intended action, but the backend controls the actual operation.
 
-## 12. Supported DevOps Actions
+## 11. Supported DevOps Actions
 
 The platform maintains a catalog of supported DevOps actions.
 
@@ -352,7 +319,7 @@ The action catalog prevents arbitrary natural-language instructions from being t
 
 The backend receives the interpreted action and validates it against the supported action implementation before execution.
 
-## 13. Kubernetes Action Example
+## 12. Kubernetes Action Example
 
 A concrete demonstrated workflow is restarting a Kubernetes deployment.
 
@@ -396,7 +363,7 @@ kubectl -n ingress-nginx rollout status \
 ```
 This separation makes the demonstration easy to verify from both the application and Kubernetes sides.
 
-## 14. Action Result
+## 13. Action Result
 
 After an action executes, the backend returns an execution result to the frontend.
 
@@ -406,7 +373,7 @@ Kubernetes deployment restarted successfully
 ```
 The frontend then updates the action state and displays the result to the user.
 
-## 15. Action History
+## 14. Action History
 
 Executed actions are persisted by the backend.
 
@@ -435,7 +402,7 @@ Kubernetes deployment restarted successfully
 ```
 This provides traceability for actions executed through the platform.
 
-## 16. AI Analysis History
+## 15. AI Analysis History
 
 AI analysis results are also persisted.
 
@@ -462,7 +429,7 @@ AI Result
                  v
           Analysis History
 ```
-## 17. Prompt Organization
+## 16. Prompt Organization
 
 The project keeps AI prompts separate from application services.
 
@@ -473,7 +440,6 @@ backend/src/app/prompts/
 Current prompt categories include:
 ```
 actions.py
-chat.py
 dockerfile.py
 kubernetes.py
 logs.py
@@ -481,7 +447,7 @@ terraform.py
 ```
 This keeps the prompt definitions easier to inspect and modify without embedding large prompt strings throughout the service implementation.
 
-## 18. Structured AI Responses
+## 17. Structured AI Responses
 
 The AI service supports structured response handling for workflows that require more than plain text.
 
@@ -507,7 +473,7 @@ Execution
 ```
 This is safer and easier to reason about than directly executing free-form model output.
 
-## 19. AI and DevOps Service Boundaries
+## 18. AI and DevOps Service Boundaries
 
 The project intentionally keeps AI and DevOps execution as separate
 concerns.
@@ -540,7 +506,7 @@ concerns.
 ```
 This makes the AI useful without making the AI model responsible for direct infrastructure access.
 
-## 20. Local AI Design
+## 19. Local AI Design
 
 The project uses a local AI model rather than requiring a remote AI API for the main demonstration.
 
@@ -555,7 +521,7 @@ The trade-off is that a small local model has more limited reasoning capability 
 
 The project deliberately accepts that trade-off to keep the development environment lightweight.
 
-## 21. AI Scope
+## 20. AI Scope
 
 The AI layer is intentionally focused on practical DevOps assistance.
 
@@ -578,7 +544,7 @@ It does not attempt to provide:
 
 The objective is to demonstrate meaningful AI Engineering integrated with real DevOps tooling.
 
-## 22. Complete AI DevOps Workflow
+## 21. Complete AI DevOps Workflow
 
 The overall platform workflow can be summarized as:
 ```
