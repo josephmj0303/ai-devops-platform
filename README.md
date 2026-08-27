@@ -330,7 +330,7 @@ The repository was deliberately cleaned up during the final project phase to rem
 ## 🔥 Quick Start
 1. Clone
 ```
-git clone [<repository-url>](https://github.com/josephmj0303/ai-devops-platform)
+git clone https://github.com/josephmj0303/ai-devops-platform
 cd ai-devops-platform
 ```
 2. Start Ollama
