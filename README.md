@@ -69,7 +69,6 @@ llama3.2:3b
 ```
 The assistant supports:
 
-* General DevOps chat
 * Dockerfile analysis
 * Kubernetes analysis
 * Terraform analysis
