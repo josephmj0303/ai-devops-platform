@@ -136,10 +136,6 @@ Ollama is the active provider for the project.
 
 The backend supports the following AI workflows:
 
-### AI Chat
-
-General DevOps-oriented interaction with the AI assistant.
-
 ### Dockerfile Analysis
 
 Analyzes Dockerfile content and returns findings and recommendations.
@@ -345,10 +341,7 @@ Run:
 cd backend
 pytest
 ```
-Run linting:
-```
-ruff check src tests
-```
+
 The project keeps testing lightweight because the platform is intended as a local demonstration environment.
 
 ## Utility Scripts
