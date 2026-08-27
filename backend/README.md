@@ -6,7 +6,7 @@ It provides:
 
 - Authentication and JWT-based access control
 - Project management
-- AI chat and DevOps analysis
+- DevOps analysis
 - AI action interpretation
 - Docker DevOps actions
 - Kubernetes inspection and actions
