@@ -2,6 +2,15 @@
 
 An AI-assisted DevOps platform that combines **AI Engineering, application development, Docker, and Kubernetes** into a practical end-to-end workflow.
 
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-TypeScript-61DAFB?style=flat-square&logo=react&logoColor=black)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-7-DC382D?style=flat-square&logo=redis&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-llama3.2%3A3b-black?style=flat-square)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Vagrant-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
+
 The platform allows users to:
 
 - Interact with a local AI assistant for DevOps questions.
