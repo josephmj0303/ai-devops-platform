@@ -29,29 +29,29 @@ The central design principle is:
 For example:
 
 ```
-User
- |
- | "Restart the ingress-nginx-controller deployment"
- v
-AI Assistant
- |
- v
-AI Action Interpretation
- |
- v
-Structured Action Intent
- |
- v
-User Confirmation
- |
- v
-Backend Action Service
- |
- v
-Kubernetes API
- |
- v
-Deployment Restart
+      User
+        |
+        | "Restart the ingress-nginx-controller deployment"
+        v
+  AI Assistant
+        |
+        v
+ AI Action Interpretation
+        |
+        v
+ Structured Action Intent
+        |
+        v
+  User Confirmation
+        |
+        v
+ Backend Action Service
+        |
+        v
+  Kubernetes API
+        |
+        v
+ Deployment Restart
 ```
 The Kubernetes operation can then be independently verified using
 ```kubectl```.
@@ -101,23 +101,23 @@ The backend validates and executes the supported action.
 
 This creates a clear separation:
 ```
-AI
- |
- | interpretation
- v
-Structured Intent
- |
- | validation
- v
-Action Catalog
- |
- | execution
- v
-DevOps Service
- |
- +---- Docker
- |
- +---- Kubernetes
+       AI
+        |
+        | interpretation
+        v
+ Structured Intent
+        |
+        | validation
+        v
+  Action Catalog
+        |
+        | execution
+        v
+  DevOps Service
+        |
+        +---- Docker
+        |
+        +---- Kubernetes
 ```
 ### Kubernetes Integration
 
@@ -170,43 +170,8 @@ The history is exposed through the application interface.
 ---
 
 ## 🏗 Architecture
-                              User
-                               |
-                               v
-                     +-------------------+
-                     | React + TypeScript|
-                     |      Frontend     |
-                     +---------+---------+
-                               |
-                               | HTTP / REST
-                               v
-                     +-------------------+
-                     |   FastAPI Backend |
-                     +---------+---------+
-                               |
-             +-----------------+------------------+
-             |                 |                  |
-             v                 v                  v
-       +-----------+     +-----------+      +-----------+
-       | PostgreSQL|     |   Redis   |      |  Ollama  |
-       +-----------+     +-----------+      +-----+-----+
-                                                  |
-                                                  v
-                                            llama3.2:3b
 
-                               |
-                               v
-                     +-------------------+
-                     | DevOps Services   |
-                     +---------+---------+
-                               |
-                     +---------+---------+
-                     |                   |
-                     v                   v
-                 Docker              Kubernetes
-                 Engine                 API
-
-The application services run through Docker Compose.
+![System Architecture](docs/images/architecture.png)
 
 Ollama runs locally on the development host.
 
@@ -244,16 +209,9 @@ The Kubernetes integration connects to the Vagrant Kubernetes cluster.
 ## 🏗 AI Architecture
 
 The AI layer uses a provider abstraction rather than coupling the application directly to one AI implementation.
-```
-AI Service
-    |
-    v
-Provider Factory
-    |
-    +---- Ollama Provider
-    |
-    +---- OpenAI Provider
-```
+
+![AI Architecture](docs/images/ai-architecture.png)
+
 The default local configuration uses:
 ```
 Provider: Ollama
@@ -557,6 +515,26 @@ Redis
 Ollama
 ```
 This provides basic operational visibility without introducing a separate monitoring stack.
+
+---
+
+## 📸 Application Screenshots
+
+### Dashboard
+
+![Dashboard](docs/images/dashboard.png)
+
+### AI Assistant
+
+![AI Assistant](docs/images/ai-assistant.png)
+
+### AI-Assisted Kubernetes Action
+
+![Action Intent](docs/images/action-intent.png)
+
+### Action History
+
+![Action History](docs/images/action-history.png)
 
 ---
 
