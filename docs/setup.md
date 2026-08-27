@@ -235,10 +235,6 @@ Build the production frontend:
 ```
 npm run build
 ```
-Run linting:
-```
-npm run lint
-```
 
 ## 13. Backend Standalone Development
 
@@ -262,10 +258,6 @@ uvicorn app.main:app \
 Run tests:
 ```
 pytest
-```
-Run linting:
-```
-ruff check src tests
 ```
 
 ## 14. Useful Docker Commands
