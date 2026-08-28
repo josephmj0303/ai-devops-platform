@@ -301,12 +301,6 @@ Expected host ports:
 The repository intentionally contains only the components used by the current implementation.
 ```
 ai-devops-platform/
-├── .gitignore
-├── .env.example
-├── LICENSE
-├── README.md
-├── docker-compose.yml
-│
 ├── backend/
 │   ├── Dockerfile
 │   ├── README.md
@@ -324,12 +318,26 @@ ai-devops-platform/
 │   ├── public/
 │   └── src/
 │
-└── docs/
-    ├── architecture.md
-    ├── setup.md
-    ├── ai-workflows.md
-    ├── devops-actions.md
-    └── demo.md
+├── docs/
+│   ├── architecture.md
+│   ├── setup.md
+│   ├── ai-workflows.md
+│   ├── devops-actions.md
+│   ├── demo.md
+│   └── images/
+│       ├── architecture.png
+│       ├── ai-architecture.png
+│       ├── dashboard.png
+│       ├── ai-assistant.png
+│       ├── action-intent.png
+│       └── action-history.png
+│
+├── .gitignore
+├── .env.example
+├── docker-compose.yml
+├── LICENSE
+└── README.md
+
 ```
 The repository was deliberately cleaned up during the final project phase to remove unused initial scaffolding and empty infrastructure placeholders.
 
