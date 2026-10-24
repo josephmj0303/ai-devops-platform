@@ -67,7 +67,7 @@ The Kubernetes operation can then be independently verified using
 ---
 
 ## 🎯 Key Capabilities
-### AI Assistant
+### <ins>AI Assistant</ins>
 
 The platform provides an AI-powered DevOps assistant using a local Ollama model.
 
@@ -83,7 +83,7 @@ The assistant supports:
 * Log analysis
 * DevOps action interpretation
 
-### AI-Assisted DevOps Actions
+### <ins>AI-Assisted DevOps Actions</ins>
 
 The platform can interpret natural-language operational requests and map them to supported DevOps actions.
 
@@ -126,7 +126,7 @@ This creates a clear separation:
         |
         +---- Kubernetes
 ```
-### Kubernetes Integration
+### <ins>Kubernetes Integration</ins>
 
 The backend integrates with the Vagrant-based Kubernetes cluster through the Kubernetes Python client.
 
@@ -149,7 +149,7 @@ kubectl -n ingress-nginx rollout status \
 ```
 with a successful rollout.
 
-### Docker Integration
+### <ins>Docker Integration</ins>
 
 The backend integrates with the Docker Engine using the Docker SDK for Python.
 
@@ -159,7 +159,7 @@ The backend container receives access to the host Docker daemon through:
 ```
 This allows supported Docker operations to be performed without running a second Docker daemon inside the application container.
 
-### Analysis and Action History
+### <ins>Analysis and Action History</ins>
 
 AI analysis results and executed DevOps actions are persisted in PostgreSQL.
 
